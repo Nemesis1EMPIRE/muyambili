@@ -603,3 +603,70 @@ body {
         width: 100%;
     }
 }
+/* ===== ACCOUNT STATES ===== */
+.account-state {
+    display: none;
+}
+
+.account-state:first-child {
+    display: block;
+}
+
+/* Styles pour l'état non connecté */
+.account-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.account-header {
+    margin-bottom: 2rem;
+}
+
+.account-title {
+    font-size: 2rem;
+    color: var(--black-inactive);
+    margin-bottom: 0.5rem;
+}
+
+.account-subtitle {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.auth-btn {
+    padding: 15px 25px;
+    border: 2px solid var(--beige-dark);
+    border-radius: var(--border-radius);
+    background: var(--white);
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.auth-btn:hover {
+    border-color: var(--orange-active);
+    transform: translateY(-2px);
+}
+
+.auth-btn:active {
+    background: var(--orange-active);
+    color: var(--white);
+    border-color: var(--orange-active);
+}
