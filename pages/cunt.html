@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MUYAMBILI - Votre plateforme de lecture</title>
+    <title>MUYAMBILI - Mon Compte</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -97,8 +97,8 @@
 
     <!-- Contenu Principal -->
     <main class="main-content">
-        <!-- Page Compte -->
-        <section id="account-page" class="page active">
+        <!-- État NON CONNECTÉ -->
+        <section id="not-connected-state" class="account-state">
             <div class="account-container">
                 <div class="account-header">
                     <h1 class="account-title">Mon Compte</h1>
@@ -114,6 +114,102 @@
                     <button class="auth-btn signup-btn" onclick="openAuthModal('signup')">
                         <i class="fas fa-user-plus"></i>
                         S'inscrire
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- État CONNECTÉ -->
+        <section id="connected-state" class="account-state" style="display: none;">
+            <div class="account-dashboard">
+                <!-- En-tête du compte -->
+                <div class="account-header">
+                    <div class="user-profile">
+                        <div class="avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <h1 class="username" id="username">Utilisateur</h1>
+                            <p class="user-email" id="userEmail">email@exemple.com</p>
+                            <span class="badge free">Compte Gratuit</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value" id="readingTime">0h 00min</h3>
+                            <p class="stat-label">Temps de lecture</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value" id="booksRead">0</h3>
+                            <p class="stat-label">Livres lus</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bookmark"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-value" id="inProgress">0</h3>
+                            <p class="stat-label">En cours</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Premium -->
+                <div class="premium-section">
+                    <div class="premium-card">
+                        <div class="premium-header">
+                            <i class="fas fa-crown premium-icon"></i>
+                            <h2>Passez à Premium</h2>
+                        </div>
+                        <div class="premium-features">
+                            <ul>
+                                <li><i class="fas fa-check"></i> Accès illimité à tous les livres</li>
+                                <li><i class="fas fa-check"></i> Téléchargement hors ligne</li>
+                                <li><i class="fas fa-check"></i> Pas de publicités</li>
+                                <li><i class="fas fa-check"></i> Support prioritaire</li>
+                            </ul>
+                        </div>
+                        <div class="premium-pricing">
+                            <div class="price">4,99€ <span>/mois</span></div>
+                            <button class="premium-btn" onclick="subscribeToPremium()">
+                                <i class="fas fa-gem"></i>
+                                Devenir Premium
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historique de lecture -->
+                <div class="reading-history">
+                    <h2 class="section-title">Historique de lecture</h2>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-history">
+                            <i class="fas fa-book-open"></i>
+                            <p>Aucun livre lu pour le moment</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bouton Déconnexion -->
+                <div class="logout-section">
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Se déconnecter
                     </button>
                 </div>
             </div>
@@ -175,7 +271,37 @@
         </div>
     </div>
 
+    <!-- Scripts Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js"></script>
     <script>
+        // Initialisation Supabase - REMPLACE AVEC TES VRAIES CLÉS
+        const SUPABASE_URL = 'https://epykntfsojewzhkiyobn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVweWtudGZzb2pld3poa2l5b2JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5OTU5OTQsImV4cCI6MjA3OTU3MTk5NH0.sOY0pBvfjvLlP4hjyUkf5u2UWVju-6PBy0nz-Vzv4dk';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Vérifier l'état de connexion
+        async function checkAuthState() {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                showConnectedState();
+                await loadUserData(session.user);
+            } else {
+                showNotConnectedState();
+            }
+        }
+
+        function showConnectedState() {
+            document.getElementById('not-connected-state').style.display = 'none';
+            document.getElementById('connected-state').style.display = 'block';
+        }
+
+        function showNotConnectedState() {
+            document.getElementById('not-connected-state').style.display = 'block';
+            document.getElementById('connected-state').style.display = 'none';
+        }
+
+        // Fonctions du modal
         function openAuthModal(tab) {
             document.getElementById('authModal').style.display = 'block';
             switchToTab(tab);
@@ -186,15 +312,136 @@
         }
 
         function switchToTab(tabName) {
-            // Mettre à jour les tabs
             document.querySelectorAll('.auth-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.tab === tabName);
             });
 
-            // Mettre à jour les forms
             document.querySelectorAll('.auth-form').forEach(form => {
                 form.classList.toggle('active', form.id === tabName + 'Form');
             });
+        }
+
+        // Gestion des formulaires
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await handleLogin();
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await handleSignup();
+        });
+
+        // Connexion avec Supabase
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+                
+                closeAuthModal();
+                await checkAuthState();
+                
+            } catch (error) {
+                alert('Erreur de connexion: ' + error.message);
+            }
+        }
+
+        // Inscription avec Supabase
+        async function handleSignup() {
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            username: username
+                        }
+                    }
+                });
+
+                if (error) throw error;
+                
+                alert('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.');
+                closeAuthModal();
+                
+            } catch (error) {
+                alert('Erreur d\'inscription: ' + error.message);
+            }
+        }
+
+        // Charger les données utilisateur depuis Supabase
+        async function loadUserData(user) {
+            if (user) {
+                document.getElementById('username').textContent = user.user_metadata?.username || user.email.split('@')[0];
+                document.getElementById('userEmail').textContent = user.email;
+                
+                // Charger les statistiques depuis la base de données
+                await loadUserStats(user.id);
+            }
+        }
+
+        // Charger les statistiques utilisateur
+        async function loadUserStats(userId) {
+            try {
+                // Récupérer les statistiques depuis la table reading_progress
+                const { data: stats, error } = await supabase
+                    .from('reading_progress')
+                    .select('*')
+                    .eq('user_id', userId);
+
+                if (error) throw error;
+
+                // Calculer les statistiques
+                const booksRead = stats?.filter(s => s.is_finished).length || 0;
+                const inProgress = stats?.filter(s => !s.is_finished).length || 0;
+                const totalReadingTime = stats?.reduce((total, stat) => total + (stat.reading_time_minutes || 0), 0) || 0;
+
+                // Afficher les statistiques
+                document.getElementById('booksRead').textContent = booksRead;
+                document.getElementById('inProgress').textContent = inProgress;
+                
+                // Convertir les minutes en heures
+                const hours = Math.floor(totalReadingTime / 60);
+                const minutes = totalReadingTime % 60;
+                document.getElementById('readingTime').textContent = `${hours}h ${minutes}min`;
+
+            } catch (error) {
+                console.error('Erreur chargement stats:', error);
+            }
+        }
+
+        // Abonnement Premium
+        function subscribeToPremium() {
+            alert('Fonctionnalité Premium bientôt disponible !');
+        }
+
+        // Déconnexion
+        async function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    alert('Erreur de déconnexion: ' + error.message);
+                } else {
+                    showNotConnectedState();
+                }
+            }
         }
 
         // Fermer modal en cliquant en dehors
@@ -203,11 +450,19 @@
                 closeAuthModal();
             }
         });
-    </script>
 
-    <!-- Scripts Supabase -->
-    <script src="https://unpkg.com/@supabase/supabase-js"></script>
-    <script src="../js/supabase.js"></script>
-    <script src="../js/auth.js"></script>
+        // Écouter les changements d'authentification
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                showConnectedState();
+                await loadUserData(session.user);
+            } else if (event === 'SIGNED_OUT') {
+                showNotConnectedState();
+            }
+        });
+
+        // Vérifier l'état au chargement
+        document.addEventListener('DOMContentLoaded', checkAuthState);
+    </script>
 </body>
 </html>
