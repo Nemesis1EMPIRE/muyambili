@@ -1,421 +1,317 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Reader — Novels, Manga & Articles</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-/* --- Global Reset --- */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { font-family: "Inter", sans-serif; background: #f4f5f7; color: #222; height: 100%; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReaderHub — Everything in One File</title>
 
-a { text-decoration: none; color: inherit; }
-button { cursor: pointer; border: none; outline: none; }
+<!-- ICONS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-/* --- Layout --- */
-#app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
-
-/* Sidebar (Desktop) */
-.sidebar { width: 80px; background: #111; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
-.sidebar i { font-size: 24px; color: #888; transition: 0.3s; }
-.sidebar i:hover { color: #fff; transform: scale(1.15); }
-
-/* Bottom bar (Mobile) */
-@media (max-width: 800px) {
-  .sidebar { display: none; }
-  .mobile-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background: #111; display: flex; justify-content: space-around; align-items: center; }
-  .mobile-nav i { color: #bbb; font-size: 26px; }
+<style>
+/* ------------------- GLOBAL ------------------- */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
 }
 
-/* Main Content */
-.main { flex: 1; overflow-y: auto; padding: 25px; }
-.page-title { font-size: 32px; font-weight: 800; margin-bottom: 20px; letter-spacing: -1px; }
+.page { display: none; padding: 20px; margin-bottom: 80px; }
+.page.active { display: block; }
+
+/* ------------------ SIDEBAR DESKTOP ------------------ */
+.sidebar {
+    position: fixed;
+    left: 0; top: 0;
+    width: 220px;
+    height: 100vh;
+    background: #111;
+    color: white;
+    padding: 20px;
+    display: none;
+}
+.sidebar h2 { margin: 0 0 20px 0; }
+.sidebar ul { list-style: none; padding: 0; }
+.sidebar li {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 15px;
+}
+.sidebar li:hover { background: #333; }
+
+/* ------------------ MOBILE BAR ------------------ */
+.mobilebar {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 12px 0;
+    background: #111;
+}
+.mobilebar i {
+    color: white;
+    font-size: 24px;
+}
+
+/* ------------------ CONTENT ------------------ */
+#page-content { padding: 20px; }
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
 
 /* Search */
-.search-bar { width: 100%; max-width: 600px; margin: 0 auto 25px; display: flex; align-items: center; background: #fff; padding: 12px 18px; border-radius: 14px; box-shadow: 0px 4px 12px rgba(0,0,0,0.08); }
-.search-bar input { flex: 1; font-size: 16px; border: none; outline: none; }
-.search-bar i { color: #555; font-size: 20px; margin-left: 8px; }
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+.search-box input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+}
 
 /* Carousel */
-.carousel { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
-.carousel-item { min-width: 200px; background: #fff; border-radius: 18px; padding: 18px; scroll-snap-align: start; box-shadow: 0px 6px 20px rgba(0,0,0,0.08); transition: .25s; }
-.carousel-item:hover { transform: translateY(-4px); }
+.carousel img {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    object-fit: cover;
+}
 
-/* Cards */
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 22px; padding: 10px 0; }
-.card { background: #fff; padding: 18px; border-radius: 18px; box-shadow: 0px 4px 16px rgba(0,0,0,0.07); transition: .25s; }
-.card:hover { transform: translateY(-6px); }
-.card-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-.card-meta { font-size: 14px; color: #666; margin-bottom: 10px; }
-.card-views { font-size: 13px; color:#0077ff; font-weight:700; }
-
-/* Description Page */
-.desc-container { background: #fff; padding: 25px; border-radius: 18px; box-shadow: 0px 4px 16px rgba(0,0,0,0.07); max-width: 900px; margin: auto; }
-.desc-title { font-size: 30px; font-weight: 800; margin-bottom: 10px; }
-.desc-info { font-size: 15px; color: #555; margin-bottom: 20px; }
-.read-btn { padding: 12px 20px; background: #0077ff; color: white; border-radius: 10px; font-size: 16px; font-weight: 600; }
-.read-btn:hover { background: #005ce0; }
-
-/* Reading Page */
-.read-page { background: #fff; padding: 25px; border-radius: 18px; box-shadow: 0px 4px 16px rgba(0,0,0,0.07); max-width: 900px; margin: auto; line-height: 1.7; font-size: 17px; }
-
-/* Comments */
-.comment-box { margin-top: 25px; background: #fafafa; padding: 18px; border-radius: 12px; }
-.comment-box textarea { width: 100%; height: 85px; border-radius: 10px; padding: 10px; border: 1px solid #ccc; outline: none; }
-.comment { background: #fff; padding: 10px 12px; margin-top: 10px; border-radius: 10px; box-shadow: 0px 2px 6px rgba(0,0,0,0.05); }
-
-/* Account Page */
-.history-item { background: #fff; padding: 14px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.05); }
-
-/* Scrollbar */
-::-webkit-scrollbar { height: 6px; width: 6px; }
-::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+/* Desktop mode */
+@media screen and (min-width: 800px) {
+    .sidebar { display: block; }
+    .mobilebar { display: none; }
+    #page-content { margin-left: 250px; }
+}
 </style>
+
 </head>
 <body>
-  <div class="app">
-    <nav class="sidebar" id="sidebar">
-      <div class="logo" title="Reader">
-        <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-weight:800">R</div>
-      </div>
-      <button class="nav-btn active" data-route="home" title="Home"><i class="fa-solid fa-house"></i></button>
-      <button class="nav-btn" data-route="books" title="Books"><i class="fa-solid fa-book"></i></button>
-      <button class="nav-btn" data-route="manga" title="Manga"><i class="fa-solid fa-book-open"></i></button>
-      <button class="nav-btn" data-route="articles" title="Articles"><i class="fa-solid fa-newspaper"></i></button>
-      <button class="nav-btn" data-route="account" title="My Account"><i class="fa-solid fa-user"></i></button>
-    </nav>
 
-    <main class="main">
-      <div class="topbar">
-        <div class="search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input id="searchInput" placeholder="Search by title, author, or genre... (press Enter)" />
-          <div class="filters">
-            <div class="chip" id="filterAll">All</div>
-            <div class="chip" id="filterBooks">Books</div>
-            <div class="chip" id="filterManga">Manga</div>
-            <div class="chip" id="filterArticles">Articles</div>
-          </div>
-        </div>
-        <div style="margin-left:8px"><button class="btn" id="btnNewItem">Add demo item</button></div>
-      </div>
+<!-- =================== SIDEBAR (DESKTOP) =================== -->
+<nav class="sidebar">
+    <h2>ReaderHub</h2>
+    <ul>
+        <li onclick="go('home')"><i class="fa fa-home"></i> Accueil</li>
+        <li onclick="go('books')"><i class="fa fa-book"></i> Livres</li>
+        <li onclick="go('manga')"><i class="fa fa-dragon"></i> Mangas</li>
+        <li onclick="go('articles')"><i class="fa fa-newspaper"></i> Articles</li>
+        <li onclick="go('account')"><i class="fa fa-user"></i> Mon Compte</li>
+    </ul>
+</nav>
 
-      <div id="content"></div>
+<!-- =================== MOBILE BAR =================== -->
+<nav class="mobilebar">
+    <i class="fa fa-home" onclick="go('home')"></i>
+    <i class="fa fa-book" onclick="go('books')"></i>
+    <i class="fa fa-dragon" onclick="go('manga')"></i>
+    <i class="fa fa-newspaper" onclick="go('articles')"></i>
+    <i class="fa fa-user" onclick="go('account')"></i>
+</nav>
 
-    </main>
-  </div>
+<!-- =================== MAIN CONTENT =================== -->
+<div id="page-content">
 
-  <script>
-    /***** DATA (you may add/edit items below) *****/
-    // The only invented data are the items below. Each has id, kind: book|manga|article, title, author, genre, description, chapters.
-    const ITEMS = [
-      {
-        id:'t1', kind:'book', title:'The Last Harbor', author:'A. Mbala', genre:'Adventure', coverColor:'#2563eb', description:'A seafaring adventure across a changing world.',
-        chapters:[{id:'t1-c1',title:'Chapter 1 — The Call'},{id:'t1-c2',title:'Chapter 2 — Storms'}]
-      },
-      {
-        id:'t2', kind:'book', title:'Quiet Algorithms', author:'L. Nkomo', genre:'Tech', coverColor:'#7c3aed', description:'Interlinked tales of coders and cities.',
-        chapters:[{id:'t2-c1',title:'Preface'},{id:'t2-c2',title:'Recursive Heart'}]
-      },
-      {
-        id:'m1', kind:'manga', title:'Blade of the Mango', author:'S. Yoko', genre:'Action', coverColor:'#db2777', description:'A samurai with a secret past fights for the orchard.',
-        chapters:[{id:'m1-c1',title:'Prologue'},{id:'m1-c2',title:'Fight at Dawn'}]
-      },
-      {
-        id:'a1', kind:'article', title:'Modern Storytelling', author:'I. Djouma', genre:'Writing', coverColor:'#059669', description:'How narrative changes with tech.',
-        chapters:[{id:'a1-c1',title:'Intro'}]
-      }
-    ];
+<!-- HOME -->
+<section id="home" class="page active">
+    <h1>Bienvenue sur ReaderHub</h1>
 
-    // LocalStorage keys
-    const LS = {
-      items:'reader_items', // allow adding demo items
-      views:'reader_views',
-      comments:'reader_comments',
-      history:'reader_history'
-    };
+    <div class="search-box">
+        <input id="searchInput" type="text" placeholder="Rechercher titre, auteur, genre...">
+        <button onclick="search()">Rechercher</button>
+    </div>
 
-    // initialize persistent items (so user can add demo items that persist)
-    if(!localStorage.getItem(LS.items)) localStorage.setItem(LS.items, JSON.stringify(ITEMS));
+    <h2>Carrousel</h2>
+    <div class="carousel">
+        <img id="carousel-img" src="https://picsum.photos/800/300?random=1">
+    </div>
 
-    /***** Utilities *****/
-    const getAllItems = ()=> JSON.parse(localStorage.getItem(LS.items) || '[]');
-    const saveAllItems = (arr)=> localStorage.setItem(LS.items, JSON.stringify(arr));
-    const getViews = ()=> JSON.parse(localStorage.getItem(LS.views) || '{}');
-    const saveViews = (o)=> localStorage.setItem(LS.views, JSON.stringify(o));
-    const getComments = ()=> JSON.parse(localStorage.getItem(LS.comments) || '{}');
-    const saveComments = (o)=> localStorage.setItem(LS.comments, JSON.stringify(o));
-    const getHistory = ()=> JSON.parse(localStorage.getItem(LS.history) || '[]');
-    const saveHistory = (h)=> localStorage.setItem(LS.history, JSON.stringify(h));
+    <h2>Résultats</h2>
+    <div id="searchResults"></div>
+</section>
 
-    /***** Routing & rendering *****/
-    const content = document.getElementById('content');
-    const sidebarBtns = document.querySelectorAll('.nav-btn');
+<!-- BOOKS -->
+<section id="books" class="page">
+    <h1>Livres</h1>
+    <div id="books-list"></div>
+</section>
 
-    function setActiveRoute(route){
-      sidebarBtns.forEach(b=> b.classList.toggle('active', b.dataset.route===route));
-    }
+<!-- MANGA -->
+<section id="manga" class="page">
+    <h1>Mangas</h1>
+    <div id="manga-list"></div>
+</section>
 
-    function navigateTo(route, params){
-      location.hash = route + (params?('?'+new URLSearchParams(params).toString()):'');
-    }
+<!-- ARTICLES -->
+<section id="articles" class="page">
+    <h1>Articles</h1>
+    <div id="articles-list"></div>
+</section>
 
-    function readRoute(){
-      const hash = location.hash.slice(1) || 'home';
-      const [route, qs] = hash.split('?');
-      const params = Object.fromEntries(new URLSearchParams(qs || ''));
-      return {route, params};
-    }
+<!-- DESCRIPTION -->
+<section id="description" class="page">
+    <div id="descriptionContent"></div>
+</section>
 
-    window.addEventListener('hashchange', renderRoute);
-    sidebarBtns.forEach(b=> b.addEventListener('click', ()=>{ navigateTo(b.dataset.route); }));
+<!-- READING -->
+<section id="chapter" class="page">
+    <h1 id="chapterTitle"></h1>
+    <p id="chapterContent"></p>
 
-    // Search handling
-    document.getElementById('searchInput').addEventListener('keydown', (e)=>{
-      if(e.key==='Enter') doSearch();
+    <p><strong>Vues :</strong> <span id="chapterViews"></span></p>
+
+    <h3>Commentaires :</h3>
+    <div id="commentList"></div>
+
+    <textarea id="commentInput" placeholder="Votre commentaire..." style="width:100%;height:80px;"></textarea>
+    <button onclick="addComment()">Publier</button>
+</section>
+
+<!-- ACCOUNT -->
+<section id="account" class="page">
+    <h1>Historique de lecture</h1>
+    <div id="historyList"></div>
+</section>
+
+</div>
+
+<!-- =================== SCRIPT =================== -->
+<script>
+// Database (allowed to invent)
+const items = [
+    {id:1, type:"book", title:"La Forêt Rouge", author:"A. Mavoungou", genre:"Fantasy", description:"Une aventure magique..."},
+    {id:2, type:"manga", title:"Shadow Blade", author:"Kenji Moro", genre:"Action", description:"Un ninja traqué..."},
+    {id:3, type:"article", title:"L'Histoire du Web", author:"J. Bernard", genre:"Tech", description:"De 1990 à nos jours..."}
+];
+
+/* ------------------ NAVIGATION ------------------ */
+function go(page) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
+}
+
+/* ------------------ CAROUSEL ------------------ */
+let carIndex = 1;
+setInterval(() => {
+    carIndex++;
+    document.getElementById("carousel-img").src = `https://picsum.photos/800/300?random=${carIndex}`;
+}, 3000);
+
+/* ------------------ LIST DISPLAY ------------------ */
+function fillLists() {
+    fill("books-list", "book");
+    fill("manga-list", "manga");
+    fill("articles-list", "article");
+}
+function fill(container, type) {
+    const c = document.getElementById(container);
+    c.innerHTML = "";
+    items.filter(i => i.type === type).forEach(i => {
+        c.innerHTML += `
+            <div class="card" onclick="openDescription(${i.id})">
+                <h3>${i.title}</h3>
+                <p>${i.author}</p>
+                <small>${i.genre}</small>
+            </div>`;
     });
-    document.getElementById('filterAll').addEventListener('click', ()=>{ document.getElementById('searchInput').value=''; doSearch(); });
-    document.getElementById('filterBooks').addEventListener('click', ()=>{ document.getElementById('searchInput').value='kind:book'; doSearch(); });
-    document.getElementById('filterManga').addEventListener('click', ()=>{ document.getElementById('searchInput').value='kind:manga'; doSearch(); });
-    document.getElementById('filterArticles').addEventListener('click', ()=>{ document.getElementById('searchInput').value='kind:article'; doSearch(); });
+}
+fillLists();
 
-    document.getElementById('btnNewItem').addEventListener('click', ()=>{
-      // creates a new demo item (invented data allowed) and persists
-      const all = getAllItems();
-      const id = 'x'+Date.now();
-      const newItem = {id, kind:'book', title:'Demo Story '+(all.length+1), author:'You', genre:'Demo', coverColor:'#f97316', description:'A demo story created by the user.', chapters:[{id:id+'-c1',title:'Chapter 1'}]};
-      all.push(newItem); saveAllItems(all);
-      alert('Demo item added to library. Use search or browse to find it.');
-      renderRoute();
+/* ------------------ SEARCH ------------------ */
+function search() {
+    const q = document.getElementById("searchInput").value.toLowerCase();
+    const results = items.filter(i =>
+        i.title.toLowerCase().includes(q) ||
+        i.author.toLowerCase().includes(q) ||
+        i.genre.toLowerCase().includes(q)
+    );
+
+    const box = document.getElementById("searchResults");
+    box.innerHTML = "";
+
+    results.forEach(r => {
+        box.innerHTML += `
+            <div class="card" onclick="openDescription(${r.id})">
+                <h3>${r.title}</h3>
+                <p>${r.author}</p>
+                <small>${r.genre}</small>
+            </div>`;
     });
+}
 
-    function doSearch(){
-      const q = document.getElementById('searchInput').value.trim();
-      if(!q){ navigateTo('home'); return; }
-      // interpret operators: kind:book, author:name, genre:name
-      const filters = {};
-      const parts = q.split(/\s+/).map(p=>p.trim()).filter(Boolean);
-      const terms = [];
-      parts.forEach(p=>{
-        const [k,v] = p.split(':');
-        if(v && ['kind','author','genre','title'].includes(k)) filters[k]=v.toLowerCase(); else terms.push(p.toLowerCase());
-      });
-      const list = getAllItems().filter(it=>{
-        if(filters.kind && it.kind.toLowerCase()!==filters.kind) return false;
-        if(filters.author && !it.author.toLowerCase().includes(filters.author)) return false;
-        if(filters.genre && !it.genre.toLowerCase().includes(filters.genre)) return false;
-        // terms match title, author, genre
-        return terms.every(t=> it.title.toLowerCase().includes(t) || it.author.toLowerCase().includes(t) || it.genre.toLowerCase().includes(t));
-      });
-      renderSearchResults(q, list);
-    }
+/* ------------------ DESCRIPTION ------------------ */
+function openDescription(id) {
+    const item = items.find(i => i.id === id);
+    go("description");
 
-    function renderSearchResults(q, list){
-      setActiveRoute('home');
-      content.innerHTML = `<h2>Search results for "${escapeHtml(q)}" — ${list.length} found</h2><div class=grid id="resultsGrid"></div>`;
-      const grid = document.getElementById('resultsGrid');
-      list.forEach(it=> grid.appendChild(renderCard(it)));
-    }
+    document.getElementById("descriptionContent").innerHTML = `
+        <h1>${item.title}</h1>
+        <p>${item.description}</p>
+        <button onclick="openChapter(${id})">Lire Chapitre 1</button>
+    `;
+}
 
-    // Escape helper
-    function escapeHtml(s){ return String(s).replace(/[&<>\"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+/* ------------------ CHAPTER READING ------------------ */
+let current = null;
 
-    function renderCard(item){
-      const el = document.createElement('div'); el.className='card';
-      el.innerHTML = `
-        <div class=cover style="background:${item.coverColor}"><div style="padding:10px">${escapeHtml(item.title)}</div></div>
-        <div class=meta>
-          <div>
-            <div class=title>${escapeHtml(item.title)}</div>
-            <div class=subtitle>${escapeHtml(item.author)} • ${escapeHtml(item.genre)} • ${escapeHtml(item.kind)}</div>
-          </div>
-          <div style="text-align:right">
-            <div class=views id="v-${item.id}">Views: ${getViews()[item.id] || 0}</div>
-            <div style="margin-top:10px"><button class="btn" data-open="${item.id}">Open</button></div>
-          </div>
-        </div>
-      `;
-      el.querySelector('button[data-open]').addEventListener('click', ()=>{ navigateTo('desc', {id:item.id}); });
-      return el;
-    }
+function openChapter(id) {
+    current = id;
+    go("chapter");
 
-    function renderHome(){
-      const all = getAllItems();
-      content.innerHTML = `
-        <h1>Welcome to Reader</h1>
-        <div class=carousel id="featured"></div>
-        <h3 style="margin-top:18px">Library</h3>
-        <div class=grid id="libraryGrid"></div>
-      `;
-      const featured = document.getElementById('featured');
-      all.slice(0,6).forEach(it=>{
-        const c = renderCard(it); c.style.minWidth='360px'; featured.appendChild(c);
-      });
-      const lib = document.getElementById('libraryGrid'); all.forEach(it=> lib.appendChild(renderCard(it)));
-    }
+    const item = items.find(i => i.id === id);
 
-    function renderList(kind){
-      const all = getAllItems().filter(x=>x.kind===kind);
-      content.innerHTML = `<h2>${kind[0].toUpperCase()+kind.slice(1)}</h2><div class=grid id="listGrid"></div>`;
-      const grid = document.getElementById('listGrid'); all.forEach(it=> grid.appendChild(renderCard(it)));
-    }
+    // VUES
+    let views = JSON.parse(localStorage.getItem("views_" + id)) || 0;
+    views++;
+    localStorage.setItem("views_" + id, JSON.stringify(views));
 
-    function renderDesc(id){
-      const it = getAllItems().find(x=>x.id===id);
-      if(!it) return content.innerHTML='<p>Item not found.</p>';
-      // description page: lists chapters and button to open reading page
-      content.innerHTML = `
-        <div class=panel>
-          <div style="display:flex;gap:12px;align-items:center">
-            <div style="width:120px;height:160px;border-radius:10px;background:${it.coverColor};display:flex;align-items:flex-end;padding:8px;color:white;font-weight:700">${escapeHtml(it.title)}</div>
-            <div>
-              <h2>${escapeHtml(it.title)}</h2>
-              <div class=muted>${escapeHtml(it.author)} • ${escapeHtml(it.genre)} • ${escapeHtml(it.kind)}</div>
-              <p style="margin-top:8px">${escapeHtml(it.description)}</p>
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <h3>Chapters</h3>
-            <div id="chapList"></div>
-          </div>
-        </div>
-      `;
-      const chapList = document.getElementById('chapList');
-      it.chapters.forEach(ch=>{
-        const chEl = document.createElement('div'); chEl.className='chapter';
-        chEl.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${escapeHtml(ch.title)}</strong><div class=muted style="font-size:13px">${escapeHtml(it.title)}</div></div><div><button class="btn" data-open="${ch.id}">Read</button></div></div>`;
-        chEl.querySelector('button').addEventListener('click', ()=>{ navigateTo('read', {item:it.id, chapter:ch.id}); });
-        chapList.appendChild(chEl);
-      });
-    }
+    document.getElementById("chapterTitle").innerText = item.title;
+    document.getElementById("chapterContent").innerText = "Contenu du chapitre...";
+    document.getElementById("chapterViews").innerText = views;
 
-    function renderRead(params){
-      const {item, chapter} = params;
-      const it = getAllItems().find(x=>x.id===item);
-      if(!it) return content.innerHTML='<p>Not found</p>';
-      const ch = it.chapters.find(c=>c.id===chapter) || it.chapters[0];
-      // update views and history
-      const views = getViews(); views[it.id]= (views[it.id]||0) + 1; saveViews(views);
-      // history entry
-      const history = getHistory(); history.unshift({item:it.id, chapter:ch.id, title:it.title, chapterTitle:ch.title, when: new Date().toISOString()}); saveHistory(history.slice(0,200));
-      // render reading page with comments
-      content.innerHTML = `
-        <div class=panel>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <h2>${escapeHtml(it.title)} — <span class=muted>${escapeHtml(ch.title)}</span></h2>
-              <div class=muted id="viewsNow">Views: ${views[it.id]}</div>
-            </div>
-            <div><button class="btn ghost" id="btnBack">Back to description</button></div>
-          </div>
-          <article style="margin-top:12px; line-height:1.6; color:#111; font-size:16px;">
-            <p><em>This is the reading view. Replace with real chapter content from your database. For demo, we generate placeholder paragraphs so the site is functional.</em></p>
-            ${generateLorem(5)}
-          </article>
-          <div style="margin-top:12px">
-            <h3>Comments</h3>
-            <div id="comments" class="comments-list"></div>
-            <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
-              <input id="commentInput" placeholder="Write a comment..." style="flex:1; padding:8px; border-radius:10px; border:1px solid #eee" />
-              <button class="btn" id="btnComment">Send</button>
-            </div>
-          </div>
-        </div>
-      `;
+    // Historique
+    let h = JSON.parse(localStorage.getItem("history")) || [];
+    h.unshift(item.title);
+    localStorage.setItem("history", JSON.stringify(h));
 
-      document.getElementById('btnBack').addEventListener('click', ()=> navigateTo('desc', {id:it.id}));
-      document.getElementById('viewsNow').innerText = 'Views: '+getViews()[it.id];
+    loadComments();
+}
 
-      // load comments
-      loadComments(it.id, ch.id);
-      document.getElementById('btnComment').addEventListener('click', ()=>{
-        const text = document.getElementById('commentInput').value.trim(); if(!text) return;
-        const all = getComments(); const key = it.id + '::' + ch.id; all[key] = all[key] || [];
-        all[key].push({text, when:new Date().toISOString()}); saveComments(all); document.getElementById('commentInput').value=''; loadComments(it.id,ch.id);
-      });
+/* ------------------ COMMENTS ------------------ */
+function loadComments() {
+    const key = "comments_" + current;
+    const list = JSON.parse(localStorage.getItem(key)) || [];
+    document.getElementById("commentList").innerHTML =
+        list.map(c => `<p>• ${c}</p>`).join("");
+}
 
-      // update any visible view counters on cards
-      const vf = document.getElementById('v-'+it.id); if(vf) vf.innerText = 'Views: '+getViews()[it.id];
-    }
+function addComment() {
+    const text = document.getElementById("commentInput").value;
+    if (!text.trim()) return;
 
-    function loadComments(itemId, chapterId){
-      const all = getComments(); const key = itemId+'::'+chapterId; const list = all[key] || [];
-      const container = document.getElementById('comments'); container.innerHTML='';
-      if(list.length===0) container.innerHTML='<div class=muted>No comments yet. Be the first.</div>';
-      list.forEach(c=>{
-        const div = document.createElement('div'); div.className='comment'; div.innerHTML=`<div style="font-size:13px; color:#0f172a">${escapeHtml(c.text)}</div><div class=muted style="font-size:12px">${new Date(c.when).toLocaleString()}</div>`;
-        container.appendChild(div);
-      });
-    }
+    const key = "comments_" + current;
+    let comments = JSON.parse(localStorage.getItem(key)) || [];
+    comments.push(text);
+    localStorage.setItem(key, JSON.stringify(comments));
 
-    function renderAccount(){
-      const history = getHistory();
-      content.innerHTML = `
-        <h2>My Account</h2>
-        <div class=panel>
-          <h3>Reading history</h3>
-          <div class=account-list id="historyList"></div>
-          <div style="margin-top:12px"><button class="btn" id="clearHistory">Clear history</button></div>
-        </div>
-      `;
-      const list = document.getElementById('historyList');
-      if(history.length===0) list.innerHTML='<div class=muted>No reading history yet. Read chapters to populate this list.</div>';
-      history.forEach(h=>{
-        const item = getAllItems().find(x=>x.id===h.item) || {}; const div = document.createElement('div'); div.className='history-item';
-        div.innerHTML = `<div class=favicon style="background:${item.coverColor||'#e6f1ff'}">${(item.title||'•').slice(0,2).toUpperCase()}</div><div style="flex:1"><div style="font-weight:700">${escapeHtml(h.title)}</div><div class=muted style="font-size:13px">${escapeHtml(h.chapterTitle)} • ${new Date(h.when).toLocaleString()}</div></div><div><button class=btn data-open="${h.item}::${h.chapter}">Open</button></div>`;
-        div.querySelector('button').addEventListener('click', ()=>{
-          const [it,ch]=h.item+'::'+h.chapter.split('::'); // fallback
-          navigateTo('read',{item:h.item, chapter:h.chapter});
-        });
-        list.appendChild(div);
-      });
-      document.getElementById('clearHistory').addEventListener('click', ()=>{ if(confirm('Clear reading history?')){ saveHistory([]); renderAccount(); } });
-    }
+    loadComments();
+    document.getElementById("commentInput").value = "";
+}
 
-    // helper to generate lorem paragraphs
-    function generateLorem(n){ let s=''; for(let i=0;i<n;i++) s+='<p>'+['The sea moved like a thought.','They walked until the lamps blurred.','Code and story braided through his memory.','The orchard smelled of rain and iron.','She remembered the old song.'][i%5]+'</p>'; return s; }
+/* ------------------ HISTORY ------------------ */
+setInterval(() => {
+    let h = JSON.parse(localStorage.getItem("history")) || [];
+    document.getElementById("historyList").innerHTML =
+        h.map(i => `<p>• ${i}</p>`).join("");
+}, 1000);
 
-    // Main renderer
-    function renderRoute(){
-      const {route, params} = readRoute();
-      setActiveRoute(route);
-      if(route==='home') renderHome();
-      else if(route==='books') renderList('book');
-      else if(route==='manga') renderList('manga');
-      else if(route==='articles') renderList('article');
-      else if(route==='desc' && params.id) renderDesc(params.id);
-      else if(route==='read' && params.item && params.chapter){
-        // IMPORTANT: Before accessing the reading page, ensure it redirects from description — we assume the app's UI does that by requiring users to click "Read" on the description page.
-        // However if a user navigates directly, we still allow reading but simulate the same flow (views/history increment).
-        renderRead(params);
-      }
-      else if(route==='account') renderAccount();
-      else renderHome();
-    }
-
-    // initialize
-    renderRoute();
-
-    // small UX: clicking left nav updates active style
-    // keep sidebar nav in sync with hash
-
-    // Allow users to comment with Enter key
-    document.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter' && document.activeElement && document.activeElement.id==='commentInput'){
-        const btn = document.getElementById('btnComment'); if(btn) btn.click();
-      }
-    });
-
-    // Ensure search returns results by title/author/genre
-    // We already implemented doSearch which looks at title/author/genre. Example queries: "Quiet" or "author:L. Nkomo" or "kind:manga"
-
-    // Expose simple API on window for debugging
-    window.READER = {getAllItems, getViews, getComments, getHistory, navigateTo};
-
-  </script>
+</script>
 </body>
 </html>
