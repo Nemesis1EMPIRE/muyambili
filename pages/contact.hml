@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUYAMBILI - Contact</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <!-- Background Image Fixe -->
+    <div class="background-image"></div>
+
+    <!-- Top App Bar -->
+    <header class="topappbar">
+        <div class="topappbar-left">
+            <div class="logo">
+                <img src="../assets/images/logo.png" alt="MUYAMBILI Logo" class="logo-image">
+                <span class="logo-text">MUYAMBILI</span>
+            </div>
+        </div>
+        
+        <div class="topappbar-center">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Rechercher un livre, auteur ou genre...">
+                <button id="searchBtn" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="topappbar-right">
+            <!-- Espace pour éléments futurs -->
+        </div>
+    </header>
+
+    <!-- Navigation Latérale (Desktop) -->
+    <nav class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Accueil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="library.html" class="nav-link">
+                    <i class="fas fa-book nav-icon"></i>
+                    <span class="nav-text">Livres</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="account.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span class="nav-text">Compte</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="contact.html" class="nav-link active">
+                    <i class="fas fa-envelope nav-icon"></i>
+                    <span class="nav-text">Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Navigation Mobile (Bottom) -->
+    <nav class="bottom-nav">
+        <ul class="bottom-nav-menu">
+            <li class="nav-item">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Accueil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="library.html" class="nav-link">
+                    <i class="fas fa-book nav-icon"></i>
+                    <span class="nav-text">Livres</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="account.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span class="nav-text">Compte</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="contact.html" class="nav-link active">
+                    <i class="fas fa-envelope nav-icon"></i>
+                    <span class="nav-text">Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <main class="main-content">
+        <section class="contact-page">
+            <div class="container">
+                <!-- En-tête -->
+                <div class="contact-header">
+                    <h1 class="page-title">Contactez-nous</h1>
+                    <p class="page-subtitle">Nous sommes là pour vous aider</p>
+                </div>
+
+                <div class="contact-content">
+                    <!-- Informations de contact -->
+                    <div class="contact-info">
+                        <div class="info-card">
+                            <div class="info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3>Email</h3>
+                                <p>contact@muyambili.com</p>
+                                <span>Nous répondons sous 24h</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3>Téléphone</h3>
+                                <p>+33 1 23 45 67 89</p>
+                                <span>Lun-Ven: 9h-18h</span>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3>Adresse</h3>
+                                <p>123 Rue de la Lecture</p>
+                                <p>75001 Paris, France</p>
+                            </div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="info-content">
+                                <h3>Horaires</h3>
+                                <p>Lundi - Vendredi: 9h-18h</p>
+                                <p>Samedi: 10h-16h</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire de contact -->
+                    <div class="contact-form-container">
+                        <div class="form-header">
+                            <h2>Envoyez-nous un message</h2>
+                            <p>Remplissez le formulaire ci-dessous et nous vous répondrons rapidement</p>
+                        </div>
+
+                        <form class="contact-form" id="contactForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">Prénom *</label>
+                                    <input type="text" id="firstName" name="firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Nom *</label>
+                                    <input type="text" id="lastName" name="lastName" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subject">Sujet *</label>
+                                <select id="subject" name="subject" required>
+                                    <option value="">Choisissez un sujet</option>
+                                    <option value="support">Support technique</option>
+                                    <option value="bug">Signaler un bug</option>
+                                    <option value="suggestion">Suggestion</option>
+                                    <option value="partnership">Partenariat</option>
+                                    <option value="other">Autre</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message">Message *</label>
+                                <textarea id="message" name="message" rows="6" placeholder="Décrivez votre demande en détail..." required></textarea>
+                            </div>
+
+                            <div class="form-footer">
+                                <button type="submit" class="submit-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Envoyer le message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- FAQ -->
+                <div class="faq-section">
+                    <h2 class="section-title">Questions fréquentes</h2>
+                    <div class="faq-grid">
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Comment créer un compte ?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Cliquez sur "Compte" dans le menu, puis sur "S'inscrire". Remplissez le formulaire avec votre email et mot de passe, et validez votre compte via le lien reçu par email.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Est-ce que MUYAMBILI est gratuit ?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Oui ! MUYAMBILI propose des milliers de livres gratuitement. Une version Premium est disponible avec des fonctionnalités supplémentaires.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Comment proposer un livre ?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Si vous êtes auteur et souhaitez publier votre livre sur MUYAMBILI, contactez-nous via le formulaire en sélectionnant "Partenariat".</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Problème de connexion ?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Vérifiez votre connexion internet, effacez le cache de votre navigateur ou réinitialisez votre mot de passe. Si le problème persiste, contactez notre support.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Gestion du formulaire de contact
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Récupérer les données du formulaire
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+
+            // Simulation d'envoi (à remplacer par un vrai envoi)
+            simulateFormSubmission(formData);
+        });
+
+        function simulateFormSubmission(formData) {
+            const submitBtn = document.querySelector('.submit-btn');
+            const originalText = submitBtn.innerHTML;
+            
+            // Afficher le loading
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
+            submitBtn.disabled = true;
+
+            // Simulation d'envoi
+            setTimeout(() => {
+                // Réinitialiser le bouton
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Afficher le message de succès
+                showSuccessMessage();
+                
+                // Réinitialiser le formulaire
+                document.getElementById('contactForm').reset();
+            }, 2000);
+        }
+
+        function showSuccessMessage() {
+            // Créer un élément de message de succès
+            const successMessage = document.createElement('div');
+            successMessage.className = 'success-message';
+            successMessage.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <h3>Message envoyé !</h3>
+                    <p>Nous vous répondrons dans les plus brefs délais.</p>
+                </div>
+            `;
+            
+            // Insérer avant le formulaire
+            const formContainer = document.querySelector('.contact-form-container');
+            formContainer.insertBefore(successMessage, formContainer.firstChild);
+            
+            // Supprimer après 5 secondes
+            setTimeout(() => {
+                successMessage.remove();
+            }, 5000);
+        }
+
+        // Gestion de la FAQ
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const faqItem = question.parentElement;
+                const answer = faqItem.querySelector('.faq-answer');
+                const icon = question.querySelector('i');
+                
+                // Fermer toutes les autres réponses
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    if (item !== faqItem) {
+                        item.classList.remove('active');
+                        item.querySelector('.faq-answer').style.maxHeight = null;
+                        item.querySelector('i').style.transform = 'rotate(0deg)';
+                    }
+                });
+                
+                // Ouvrir/fermer la réponse actuelle
+                faqItem.classList.toggle('active');
+                
+                if (faqItem.classList.contains('active')) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(180deg)';
+                } else {
+                    answer.style.maxHeight = null;
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // Fermer les réponses FAQ en cliquant ailleurs
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.faq-item')) {
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('active');
+                    item.querySelector('.faq-answer').style.maxHeight = null;
+                    item.querySelector('i').style.transform = 'rotate(0deg)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
