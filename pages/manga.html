@@ -1,1 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUYAMBILI - Mangas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <!-- Background Image Fixe -->
+    <div class="background-image"></div>
 
+    <!-- Top App Bar -->
+    <header class="topappbar">
+        <div class="topappbar-left">
+            <div class="logo">
+                <img src="../assets/images/logo.png" alt="MUYAMBILI Logo" class="logo-image">
+                <span class="logo-text">MUYAMBILI</span>
+            </div>
+        </div>
+        
+        <div class="topappbar-center">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Rechercher un manga...">
+                <button id="searchBtn" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="topappbar-right">
+            <!-- Espace pour éléments futurs -->
+        </div>
+    </header>
+
+    <!-- Navigation Latérale (Desktop) -->
+    <nav class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Accueil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="library.html" class="nav-link">
+                    <i class="fas fa-book nav-icon"></i>
+                    <span class="nav-text">Livres</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="manga.html" class="nav-link active">
+                    <i class="fas fa-comic"></i>
+                    <span class="nav-text">Mangas</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="blog.html" class="nav-link">
+                    <i class="fas fa-blog nav-icon"></i>
+                    <span class="nav-text">Blog</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="cunt.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span class="nav-text">Compte</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Navigation Mobile (Bottom) -->
+    <nav class="bottom-nav">
+        <ul class="bottom-nav-menu">
+            <li class="nav-item">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Accueil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="library.html" class="nav-link">
+                    <i class="fas fa-book nav-icon"></i>
+                    <span class="nav-text">Livres</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="manga.html" class="nav-link active">
+                    <i class="fas fa-comic"></i>
+                    <span class="nav-text">Mangas</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="blog.html" class="nav-link">
+                    <i class="fas fa-blog nav-icon"></i>
+                    <span class="nav-text">Blog</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="cunt.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span class="nav-text">Compte</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <main class="main-content">
+        <section class="manga-page">
+            <div class="container">
+                <!-- En-tête -->
+                <div class="manga-header">
+                    <h1 class="page-title">Bibliothèque de Mangas</h1>
+                    <p class="page-subtitle">Découvrez notre collection de mangas</p>
+                </div>
+
+                <!-- Filtres -->
+                <div class="manga-filters">
+                    <div class="filter-group">
+                        <label for="genreFilter">Genre :</label>
+                        <select id="genreFilter" class="filter-select">
+                            <option value="all">Tous les genres</option>
+                            <option value="shonen">Shonen</option>
+                            <option value="shojo">Shojo</option>
+                            <option value="seinen">Seinen</option>
+                            <option value="josei">Josei</option>
+                            <option value="action">Action</option>
+                            <option value="aventure">Aventure</option>
+                            <option value="fantastique">Fantastique</option>
+                            <option value="romance">Romance</option>
+                            <option value="comedie">Comédie</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="statusFilter">Statut :</label>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="all">Tous les statuts</option>
+                            <option value="ongoing">En cours</option>
+                            <option value="completed">Terminé</option>
+                            <option value="hiatus">En pause</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="sortFilter">Trier par :</label>
+                        <select id="sortFilter" class="filter-select">
+                            <option value="newest">Plus récents</option>
+                            <option value="popular">Populaires</option>
+                            <option value="title">Titre (A-Z)</option>
+                            <option value="chapters">Chapitres</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-stats">
+                        <span id="mangasCount">0 mangas trouvés</span>
+                    </div>
+                </div>
+
+                <!-- Grille des mangas -->
+                <div class="mangas-grid" id="mangasGrid">
+                    <!-- Les mangas seront chargés ici dynamiquement -->
+                    <div class="loading-mangas">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Chargement des mangas...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <!-- La pagination sera générée dynamiquement -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de détail du manga -->
+    <div id="mangaModal" class="modal">
+        <div class="modal-content manga-modal">
+            <span class="close-modal" onclick="closeMangaModal()">&times;</span>
+            <div class="manga-modal-content" id="mangaModalContent">
+                <!-- Contenu du manga chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://ton-project.supabase.co';
+        const SUPABASE_ANON_KEY = 'ton-anon-key-tres-long';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Variables globales
+        let allMangas = [];
+        let currentPage = 1;
+        const mangasPerPage = 12;
+        let currentFilters = {
+            genre: 'all',
+            status: 'all',
+            sort: 'newest',
+            search: ''
+        };
+
+        // Charger les mangas au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMangas();
+            setupEventListeners();
+        });
+
+        // Configurer les écouteurs d'événements
+        function setupEventListeners() {
+            // Filtres
+            document.getElementById('genreFilter').addEventListener('change', function() {
+                currentFilters.genre = this.value;
+                currentPage = 1;
+                loadMangas();
+            });
+
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                currentFilters.status = this.value;
+                currentPage = 1;
+                loadMangas();
+            });
+
+            document.getElementById('sortFilter').addEventListener('change', function() {
+                currentFilters.sort = this.value;
+                currentPage = 1;
+                loadMangas();
+            });
+
+            // Recherche
+            document.getElementById('searchInput').addEventListener('input', function() {
+                currentFilters.search = this.value.toLowerCase();
+                currentPage = 1;
+                loadMangas();
+            });
+
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                currentFilters.search = document.getElementById('searchInput').value.toLowerCase();
+                currentPage = 1;
+                loadMangas();
+            });
+        }
+
+        // Charger les mangas depuis Supabase
+        async function loadMangas() {
+            try {
+                showLoading();
+                
+                let query = supabase
+                    .from('mangas')
+                    .select('*')
+                    .eq('is_public', true);
+
+                // Appliquer le tri
+                switch(currentFilters.sort) {
+                    case 'newest':
+                        query = query.order('created_at', { ascending: false });
+                        break;
+                    case 'popular':
+                        query = query.order('views', { ascending: false });
+                        break;
+                    case 'title':
+                        query = query.order('title', { ascending: true });
+                        break;
+                    case 'chapters':
+                        query = query.order('chapter_count', { ascending: false });
+                        break;
+                }
+
+                const { data: mangas, error } = await query;
+
+                if (error) throw error;
+
+                allMangas = mangas || [];
+                displayMangas();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des mangas:', error);
+                showError('Erreur lors du chargement des mangas');
+            }
+        }
+
+        // Afficher les mangas
+        function displayMangas() {
+            let filteredMangas = filterMangas(allMangas);
+            const totalMangas = filteredMangas.length;
+            const totalPages = Math.ceil(totalMangas / mangasPerPage);
+            
+            // Mettre à jour le compteur
+            document.getElementById('mangasCount').textContent = `${totalMangas} manga${totalMangas > 1 ? 's' : ''} trouvé${totalMangas > 1 ? 's' : ''}`;
+            
+            // Pagination
+            const startIndex = (currentPage - 1) * mangasPerPage;
+            const endIndex = startIndex + mangasPerPage;
+            const mangasToShow = filteredMangas.slice(startIndex, endIndex);
+            
+            // Afficher la grille
+            const mangasGrid = document.getElementById('mangasGrid');
+            
+            if (mangasToShow.length === 0) {
+                mangasGrid.innerHTML = `
+                    <div class="no-mangas">
+                        <i class="fas fa-comic"></i>
+                        <h3>Aucun manga trouvé</h3>
+                        <p>Essayez de modifier vos critères de recherche</p>
+                    </div>
+                `;
+            } else {
+                mangasGrid.innerHTML = mangasToShow.map(manga => `
+                    <div class="manga-card" onclick="openMangaModal('${manga.id}')">
+                        <div class="manga-cover">
+                            ${manga.cover_url ? 
+                                `<img src="${manga.cover_url}" alt="${manga.title}" onerror="this.style.display='none'">` : 
+                                '<i class="fas fa-comic"></i>'
+                            }
+                            ${getStatusBadge(manga.status)}
+                            ${manga.is_new ? '<span class="badge new">Nouveau</span>' : ''}
+                        </div>
+                        <div class="manga-info">
+                            <h3 class="manga-title">${manga.title}</h3>
+                            <p class="manga-author">${manga.author}</p>
+                            <div class="manga-meta">
+                                <span class="manga-genre">${manga.genre}</span>
+                                <span class="manga-chapters">${manga.chapter_count || 0} ch.</span>
+                            </div>
+                            ${manga.description ? `<p class="manga-description">${manga.description.substring(0, 100)}...</p>` : ''}
+                            <div class="manga-stats">
+                                <span class="manga-views"><i class="fas fa-eye"></i> ${manga.views || 0}</span>
+                                <span class="manga-rating"><i class="fas fa-star"></i> ${manga.rating || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Afficher la pagination
+            displayPagination(totalPages);
+        }
+
+        // Filtrer les mangas
+        function filterMangas(mangas) {
+            return mangas.filter(manga => {
+                // Filtre par genre
+                if (currentFilters.genre !== 'all' && manga.genre !== currentFilters.genre) {
+                    return false;
+                }
+                
+                // Filtre par statut
+                if (currentFilters.status !== 'all' && manga.status !== currentFilters.status) {
+                    return false;
+                }
+                
+                // Filtre par recherche
+                if (currentFilters.search) {
+                    const searchTerm = currentFilters.search.toLowerCase();
+                    return manga.title.toLowerCase().includes(searchTerm) || 
+                           manga.author.toLowerCase().includes(searchTerm) ||
+                           (manga.description && manga.description.toLowerCase().includes(searchTerm));
+                }
+                
+                return true;
+            });
+        }
+
+        // Obtenir le badge de statut
+        function getStatusBadge(status) {
+            const statusConfig = {
+                'ongoing': { text: 'En cours', class: 'ongoing' },
+                'completed': { text: 'Terminé', class: 'completed' },
+                'hiatus': { text: 'En pause', class: 'hiatus' }
+            };
+            
+            const config = statusConfig[status];
+            if (config) {
+                return `<span class="badge status ${config.class}">${config.text}</span>`;
+            }
+            return '';
+        }
+
+        // Afficher la pagination
+        function displayPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Bouton précédent
+            if (currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>`;
+            }
+            
+            // Pages
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    paginationHTML += `<span class="page-number active">${i}</span>`;
+                } else {
+                    paginationHTML += `<button class="page-number" onclick="changePage(${i})">${i}</button>`;
+                }
+            }
+            
+            // Bouton suivant
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>`;
+            }
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Changer de page
+        function changePage(page) {
+            currentPage = page;
+            displayMangas();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Ouvrir le modal du manga
+        async function openMangaModal(mangaId) {
+            try {
+                const { data: manga, error } = await supabase
+                    .from('mangas')
+                    .select('*')
+                    .eq('id', mangaId)
+                    .single();
+
+                if (error) throw error;
+
+                // Charger les chapitres
+                const { data: chapters, error: chaptersError } = await supabase
+                    .from('manga_chapters')
+                    .select('*')
+                    .eq('manga_id', mangaId)
+                    .order('chapter_number', { ascending: true });
+
+                if (chaptersError) throw chaptersError;
+
+                const modalContent = document.getElementById('mangaModalContent');
+                modalContent.innerHTML = `
+                    <div class="manga-detail">
+                        <div class="manga-detail-cover">
+                            ${manga.cover_url ? 
+                                `<img src="${manga.cover_url}" alt="${manga.title}">` : 
+                                '<i class="fas fa-comic"></i>'
+                            }
+                        </div>
+                        <div class="manga-detail-info">
+                            <div class="manga-header-detail">
+                                <h1>${manga.title}</h1>
+                                <div class="manga-meta-detail">
+                                    <span class="manga-author">${manga.author}</span>
+                                    <span class="manga-status ${manga.status}">${getStatusText(manga.status)}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="manga-stats-detail">
+                                <div class="stat">
+                                    <i class="fas fa-list"></i>
+                                    <span>${chapters.length} chapitres</span>
+                                </div>
+                                <div class="stat">
+                                    <i class="fas fa-eye"></i>
+                                    <span>${manga.views || 0} vues</span>
+                                </div>
+                                <div class="stat">
+                                    <i class="fas fa-star"></i>
+                                    <span>${manga.rating || 'N/A'}/10</span>
+                                </div>
+                                <div class="stat">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>${manga.genre}</span>
+                                </div>
+                            </div>
+                            
+                            ${manga.description ? `
+                                <div class="manga-description-full">
+                                    <h3>Synopsis</h3>
+                                    <p>${manga.description}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="chapters-section">
+                                <h3>Chapitres (${chapters.length})</h3>
+                                <div class="chapters-list">
+                                    ${chapters.map(chapter => `
+                                        <div class="chapter-item" onclick="readChapter('${manga.id}', '${chapter.id}')">
+                                            <div class="chapter-info">
+                                                <span class="chapter-number">Chapitre ${chapter.chapter_number}</span>
+                                                ${chapter.title ? `<span class="chapter-title">${chapter.title}</span>` : ''}
+                                            </div>
+                                            <div class="chapter-meta">
+                                                <span class="chapter-date">${formatDate(chapter.created_at)}</span>
+                                                <span class="chapter-pages">${chapter.page_count || '?'} pages</span>
+                                            </div>
+                                            <button class="read-chapter-btn">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('mangaModal').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement du manga:', error);
+                alert('Erreur lors du chargement du manga');
+            }
+        }
+
+        // Obtenir le texte du statut
+        function getStatusText(status) {
+            const statusMap = {
+                'ongoing': 'En cours',
+                'completed': 'Terminé', 
+                'hiatus': 'En pause'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Formater la date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        // Fermer le modal du manga
+        function closeMangaModal() {
+            document.getElementById('mangaModal').style.display = 'none';
+        }
+
+        // Lire un chapitre
+        function readChapter(mangaId, chapterId) {
+            window.location.href = `manga-reader.html?manga=${mangaId}&chapter=${chapterId}`;
+        }
+
+        // États de chargement
+        function showLoading() {
+            document.getElementById('mangasGrid').innerHTML = `
+                <div class="loading-mangas">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement des mangas...</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('mangasGrid').innerHTML = `
+                <div class="error-mangas">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Erreur</h3>
+                    <p>${message}</p>
+                    <button onclick="loadMangas()" class="retry-btn">Réessayer</button>
+                </div>
+            `;
+        }
+
+        // Fermer le modal en cliquant en dehors
+        document.getElementById('mangaModal').addEventListener('click', function(e) {
+            if (e.target.id === 'mangaModal') {
+                closeMangaModal();
+            }
+        });
+    </script>
+</body>
+</html>
