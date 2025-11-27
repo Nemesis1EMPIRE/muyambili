@@ -1,1 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUYAMBILI - Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <!-- Background Image Fixe -->
+    <div class="background-image"></div>
 
+    <!-- Top App Bar -->
+    <header class="topappbar">
+        <div class="topappbar-left">
+            <div class="logo">
+                <img src="../assets/images/logo.png" alt="MUYAMBILI Logo" class="logo-image">
+                <span class="logo-text">MUYAMBILI</span>
+            </div>
+        </div>
+        
+        <div class="topappbar-center">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Rechercher un article...">
+                <button id="searchBtn" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="topappbar-right">
+            <!-- Espace pour éléments futurs -->
+        </div>
+    </header>
+
+    <!-- Navigation Latérale (Desktop) -->
+    <nav class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Accueil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="library.html" class="nav-link">
+                    <i class="fas fa-book nav-icon"></i>
+                    <span class="nav-text">Livres</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="blog.html" class="nav-link active">
+                    <i class="fas fa-blog nav-icon"></i>
+                    <span class="nav-text">Blog</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="cunt.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span class="nav-text">Compte</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="contact.html" class="nav-link">
+                    <i class="fas fa-envelope nav-icon"></i>
+                    <span class="nav-text">Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Navigation Mobile (Bottom) -->
+    <nav class="bottom-nav">
+        <ul class="bottom-nav-menu">
+            <li class="nav-item">
+                <a href="../index.html" class="nav-link">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">Accueil</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="library.html" class="nav-link">
+                    <i class="fas fa-book nav-icon"></i>
+                    <span class="nav-text">Livres</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="blog.html" class="nav-link active">
+                    <i class="fas fa-blog nav-icon"></i>
+                    <span class="nav-text">Blog</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="cunt.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span class="nav-text">Compte</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="contact.html" class="nav-link">
+                    <i class="fas fa-envelope nav-icon"></i>
+                    <span class="nav-text">Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <main class="main-content">
+        <section class="blog-page">
+            <div class="container">
+                <!-- En-tête -->
+                <div class="blog-header">
+                    <h1 class="page-title">Notre Blog</h1>
+                    <p class="page-subtitle">Découvrez nos articles sur la lecture et la littérature</p>
+                </div>
+
+                <!-- Filtres -->
+                <div class="blog-filters">
+                    <div class="filter-group">
+                        <label for="categoryFilter">Catégorie :</label>
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="all">Toutes les catégories</option>
+                            <option value="conseils">Conseils de lecture</option>
+                            <option value="auteurs">Portraits d'auteurs</option>
+                            <option value="actualites">Actualités littéraires</option>
+                            <option value="critiques">Critiques</option>
+                            <option value="evenements">Événements</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="sortFilter">Trier par :</label>
+                        <select id="sortFilter" class="filter-select">
+                            <option value="newest">Plus récents</option>
+                            <option value="oldest">Plus anciens</option>
+                            <option value="popular">Plus populaires</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-stats">
+                        <span id="articlesCount">0 articles trouvés</span>
+                    </div>
+                </div>
+
+                <!-- Grille des articles -->
+                <div class="articles-grid" id="articlesGrid">
+                    <!-- Les articles seront chargés ici dynamiquement -->
+                    <div class="loading-articles">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Chargement des articles...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <!-- La pagination sera générée dynamiquement -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de lecture d'article -->
+    <div id="articleModal" class="modal">
+        <div class="modal-content article-modal">
+            <span class="close-modal" onclick="closeArticleModal()">&times;</span>
+            <div class="article-modal-content" id="articleModalContent">
+                <!-- Contenu de l'article chargé dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://ton-project.supabase.co';
+        const SUPABASE_ANON_KEY = 'ton-anon-key-tres-long';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Variables globales
+        let allArticles = [];
+        let currentPage = 1;
+        const articlesPerPage = 9;
+        let currentFilters = {
+            category: 'all',
+            sort: 'newest',
+            search: ''
+        };
+
+        // Charger les articles au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadArticles();
+            setupEventListeners();
+        });
+
+        // Configurer les écouteurs d'événements
+        function setupEventListeners() {
+            // Filtres
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                currentFilters.category = this.value;
+                currentPage = 1;
+                loadArticles();
+            });
+
+            document.getElementById('sortFilter').addEventListener('change', function() {
+                currentFilters.sort = this.value;
+                currentPage = 1;
+                loadArticles();
+            });
+
+            // Recherche
+            document.getElementById('searchInput').addEventListener('input', function() {
+                currentFilters.search = this.value.toLowerCase();
+                currentPage = 1;
+                loadArticles();
+            });
+
+            document.getElementById('searchBtn').addEventListener('click', function() {
+                currentFilters.search = document.getElementById('searchInput').value.toLowerCase();
+                currentPage = 1;
+                loadArticles();
+            });
+        }
+
+        // Charger les articles depuis Supabase
+        async function loadArticles() {
+            try {
+                showLoading();
+                
+                let query = supabase
+                    .from('articles')
+                    .select(`
+                        *,
+                        author:profiles(username, full_name)
+                    `)
+                    .eq('is_published', true);
+
+                // Appliquer le tri
+                switch(currentFilters.sort) {
+                    case 'newest':
+                        query = query.order('created_at', { ascending: false });
+                        break;
+                    case 'oldest':
+                        query = query.order('created_at', { ascending: true });
+                        break;
+                    case 'popular':
+                        query = query.order('read_count', { ascending: false });
+                        break;
+                }
+
+                const { data: articles, error } = await query;
+
+                if (error) throw error;
+
+                allArticles = articles || [];
+                displayArticles();
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement des articles:', error);
+                showError('Erreur lors du chargement des articles');
+            }
+        }
+
+        // Afficher les articles
+        function displayArticles() {
+            let filteredArticles = filterArticles(allArticles);
+            const totalArticles = filteredArticles.length;
+            const totalPages = Math.ceil(totalArticles / articlesPerPage);
+            
+            // Mettre à jour le compteur
+            document.getElementById('articlesCount').textContent = `${totalArticles} article${totalArticles > 1 ? 's' : ''} trouvé${totalArticles > 1 ? 's' : ''}`;
+            
+            // Pagination
+            const startIndex = (currentPage - 1) * articlesPerPage;
+            const endIndex = startIndex + articlesPerPage;
+            const articlesToShow = filteredArticles.slice(startIndex, endIndex);
+            
+            // Afficher la grille
+            const articlesGrid = document.getElementById('articlesGrid');
+            
+            if (articlesToShow.length === 0) {
+                articlesGrid.innerHTML = `
+                    <div class="no-articles">
+                        <i class="fas fa-newspaper"></i>
+                        <h3>Aucun article trouvé</h3>
+                        <p>Essayez de modifier vos critères de recherche</p>
+                    </div>
+                `;
+            } else {
+                articlesGrid.innerHTML = articlesToShow.map(article => `
+                    <div class="article-card" onclick="openArticleModal('${article.id}')">
+                        <div class="article-image">
+                            ${article.cover_url ? 
+                                `<img src="${article.cover_url}" alt="${article.title}" onerror="this.style.display='none'">` : 
+                                '<i class="fas fa-newspaper"></i>'
+                            }
+                            ${isNewArticle(article) ? '<span class="badge new">Nouveau</span>' : ''}
+                        </div>
+                        <div class="article-content">
+                            <div class="article-meta">
+                                <span class="article-category">${article.category || 'Général'}</span>
+                                <span class="article-read-time">${article.read_time || 5} min</span>
+                            </div>
+                            <h3 class="article-title">${article.title}</h3>
+                            <p class="article-excerpt">${article.excerpt || article.content.substring(0, 150) + '...'}</p>
+                            <div class="article-footer">
+                                <div class="article-author">
+                                    <i class="fas fa-user"></i>
+                                    ${article.author?.full_name || article.author?.username || 'Auteur inconnu'}
+                                </div>
+                                <div class="article-date">
+                                    ${formatDate(article.created_at)}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="read-article-btn" onclick="event.stopPropagation(); readArticle('${article.id}')">
+                            <i class="fas fa-book-open"></i>
+                            Lire
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            // Afficher la pagination
+            displayPagination(totalPages);
+        }
+
+        // Filtrer les articles
+        function filterArticles(articles) {
+            return articles.filter(article => {
+                // Filtre par catégorie
+                if (currentFilters.category !== 'all' && article.category !== currentFilters.category) {
+                    return false;
+                }
+                
+                // Filtre par recherche
+                if (currentFilters.search) {
+                    const searchTerm = currentFilters.search.toLowerCase();
+                    return article.title.toLowerCase().includes(searchTerm) || 
+                           (article.excerpt && article.excerpt.toLowerCase().includes(searchTerm)) ||
+                           (article.content && article.content.toLowerCase().includes(searchTerm)) ||
+                           (article.author?.full_name && article.author.full_name.toLowerCase().includes(searchTerm));
+                }
+                
+                return true;
+            });
+        }
+
+        // Vérifier si un article est nouveau (moins de 3 jours)
+        function isNewArticle(article) {
+            const articleDate = new Date(article.created_at);
+            const now = new Date();
+            const diffTime = Math.abs(now - articleDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays <= 3;
+        }
+
+        // Formater la date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        // Afficher la pagination
+        function displayPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Bouton précédent
+            if (currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>`;
+            }
+            
+            // Pages
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    paginationHTML += `<span class="page-number active">${i}</span>`;
+                } else {
+                    paginationHTML += `<button class="page-number" onclick="changePage(${i})">${i}</button>`;
+                }
+            }
+            
+            // Bouton suivant
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>`;
+            }
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Changer de page
+        function changePage(page) {
+            currentPage = page;
+            displayArticles();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Ouvrir le modal de l'article
+        async function openArticleModal(articleId) {
+            try {
+                const { data: article, error } = await supabase
+                    .from('articles')
+                    .select(`
+                        *,
+                        author:profiles(username, full_name)
+                    `)
+                    .eq('id', articleId)
+                    .single();
+
+                if (error) throw error;
+
+                const modalContent = document.getElementById('articleModalContent');
+                modalContent.innerHTML = `
+                    <article class="article-full">
+                        <header class="article-header">
+                            <div class="article-meta">
+                                <span class="article-category large">${article.category || 'Général'}</span>
+                                <span class="article-read-time">${article.read_time || 5} min de lecture</span>
+                            </div>
+                            <h1>${article.title}</h1>
+                            <div class="article-author-info">
+                                <div class="author-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="author-details">
+                                    <strong>${article.author?.full_name || article.author?.username || 'Auteur inconnu'}</strong>
+                                    <span>${formatDate(article.created_at)}</span>
+                                </div>
+                            </div>
+                        </header>
+                        
+                        ${article.cover_url ? `
+                            <div class="article-cover">
+                                <img src="${article.cover_url}" alt="${article.title}">
+                            </div>
+                        ` : ''}
+                        
+                        <div class="article-content-full">
+                            ${article.content.split('\n').map(paragraph => 
+                                paragraph.trim() ? `<p>${paragraph}</p>` : ''
+                            ).join('')}
+                        </div>
+                        
+                        <footer class="article-footer-full">
+                            <div class="article-actions">
+                                <button class="action-btn" onclick="shareArticle('${article.id}', '${article.title}')">
+                                    <i class="fas fa-share"></i>
+                                    Partager
+                                </button>
+                                <button class="action-btn" onclick="saveArticle('${article.id}')">
+                                    <i class="fas fa-bookmark"></i>
+                                    Sauvegarder
+                                </button>
+                            </div>
+                        </footer>
+                    </article>
+                `;
+
+                document.getElementById('articleModal').style.display = 'block';
+                
+                // Incrémenter le compteur de lectures
+                await incrementReadCount(articleId);
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement de l\'article:', error);
+                alert('Erreur lors du chargement de l\'article');
+            }
+        }
+
+        // Incrémenter le compteur de lectures
+        async function incrementReadCount(articleId) {
+            try {
+                const { data: article } = await supabase
+                    .from('articles')
+                    .select('read_count')
+                    .eq('id', articleId)
+                    .single();
+
+                const newReadCount = (article.read_count || 0) + 1;
+
+                await supabase
+                    .from('articles')
+                    .update({ read_count: newReadCount })
+                    .eq('id', articleId);
+
+            } catch (error) {
+                console.error('Erreur mise à jour compteur:', error);
+            }
+        }
+
+        // Fermer le modal de l'article
+        function closeArticleModal() {
+            document.getElementById('articleModal').style.display = 'none';
+        }
+
+        // Lire un article (version complète)
+        function readArticle(articleId) {
+            openArticleModal(articleId);
+        }
+
+        // Partager un article
+        function shareArticle(articleId, articleTitle) {
+            if (navigator.share) {
+                navigator.share({
+                    title: articleTitle,
+                    text: `Découvrez cet article sur MUYAMBILI: ${articleTitle}`,
+                    url: `${window.location.origin}/pages/blog.html?article=${articleId}`
+                });
+            } else {
+                // Fallback pour les navigateurs qui ne supportent pas l'API Share
+                navigator.clipboard.writeText(`${window.location.origin}/pages/blog.html?article=${articleId}`);
+                alert('Lien copié dans le presse-papier !');
+            }
+        }
+
+        // Sauvegarder un article
+        async function saveArticle(articleId) {
+            // Implémentation future avec système de favoris
+            alert('Fonctionnalité de sauvegarde bientôt disponible !');
+        }
+
+        // États de chargement
+        function showLoading() {
+            document.getElementById('articlesGrid').innerHTML = `
+                <div class="loading-articles">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement des articles...</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('articlesGrid').innerHTML = `
+                <div class="error-articles">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Erreur</h3>
+                    <p>${message}</p>
+                    <button onclick="loadArticles()" class="retry-btn">Réessayer</button>
+                </div>
+            `;
+        }
+
+        // Fermer le modal en cliquant en dehors
+        document.getElementById('articleModal').addEventListener('click', function(e) {
+            if (e.target.id === 'articleModal') {
+                closeArticleModal();
+            }
+        });
+    </script>
+</body>
+</html>
