@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadHub - Books, Manga & Articles</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #6a5af9;
+            --secondary: #d66efd;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+        }
+
+        body {
+            background-color: #f5f5f7;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 8px;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-icons a {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+            padding-left: 45px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(106, 90, 249, 0.8), rgba(214, 110, 253, 0.8)), url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Category Navigation */
+        .category-nav {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .category-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-item {
+            padding: 10px 20px;
+            background: white;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            margin-right: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Content Sections */
+        .section {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .see-all {
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Content Cards */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-image {
+            height: 150px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 12px;
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* Book Description Page */
+        .book-detail {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .book-info {
+            padding: 20px;
+        }
+
+        .book-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .book-author {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .book-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .book-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        /* Chapter List */
+        .chapter-list {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chapter-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .chapter-item:last-child {
+            border-bottom: none;
+        }
+
+        .chapter-title {
+            font-weight: 500;
+        }
+
+        .chapter-views {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Reading Page */
+        .reading-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .reading-content {
+            padding: 20px 0;
+            line-height: 1.8;
+        }
+
+        .chapter-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Comments Section */
+        .comments-section {
+            margin-top: 30px;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .comment-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+
+        .comment {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+        }
+
+        .comment-date {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        /* Account Page */
+        .account-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .history-item {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-cover {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .history-progress {
+            height: 5px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 65%;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .page {
+            display: none;
+            padding-bottom: 70px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div class="page active" id="home-page">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-book-open"></i>
+                        <span>ReadHub</span>
+                    </div>
+                    <div class="nav-icons">
+                        <a href="#" id="search-toggle"><i class="fas fa-search"></i></a>
+                        <a href="#" id="account-toggle"><i class="fas fa-user"></i></a>
+                    </div>
+                </div>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-bar" placeholder="Search for books, manga, articles...">
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="hero">
+                <h1>Discover Your Next Favorite Story</h1>
+                <p>Thousands of books, manga, and articles at your fingertips</p>
+                <button class="cta-button">Start Reading</button>
+            </div>
+
+            <div class="category-nav">
+                <div class="category-item active" data-target="featured">Featured</div>
+                <div class="category-item" data-target="books">Books</div>
+                <div class="category-item" data-target="manga">Manga</div>
+                <div class="category-item" data-target="articles">Articles</div>
+            </div>
+
+            <div class="section active" id="featured">
+                <div class="section-title">
+                    <h2>Featured Content</h2>
+                    <a href="#" class="see-all">See All</a>
+                </div>
+                <div class="content-grid">
+                    <div class="content-card" data-id="1">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Book Cover" class="card-image">
+                        <div class="card-content">
+                            <div class="card-title">The Silent Patient</div>
+                            <div class="card-meta">
+                                <span>Alex Michaelides</span>
+                                <span><i class="fas fa-eye"></i> 12.4K</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-card" data-id="2">
+                        <img src="https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Manga Cover" class="card-image">
+                        <div class="card-content">
+                            <div class="card-title">Attack on Titan</div>
+                            <div class="card-meta">
+                                <span>Hajime Isayama</span>
+                                <span><i class="fas fa-eye"></i> 45.7K</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-card" data-id="3">
+                        <img src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Article Cover" class="card-image">
+                        <div class="card-content">
+                            <div class="card-title">The Future of AI</div>
+                            <div class="card-meta">
+                                <span>Tech Insights</span>
+                                <span><i class="fas fa-eye"></i> 8.2K</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-card" data-id="4">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Book Cover" class="card-image">
+                        <div class="card-content">
+                            <div class="card-title">Dune</div>
+                            <div class="card-meta">
+                                <span>Frank Herbert</span>
+                                <span><i class="fas fa-eye"></i> 23.1K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" id="books">
+                <div class="section-title">
+                    <h2>Popular Books</h2>
+                    <a href="#" class="see-all">See All</a>
+                </div>
+                <div class="content-grid">
+                    <!-- Book content would be loaded here -->
+                </div>
+            </div>
+
+            <div class="section" id="manga">
+                <div class="section-title">
+                    <h2>Popular Manga</h2>
+                    <a href="#" class="see-all">See All</a>
+                </div>
+                <div class="content-grid">
+                    <!-- Manga content would be loaded here -->
+                </div>
+            </div>
+
+            <div class="section" id="articles">
+                <div class="section-title">
+                    <h2>Popular Articles</h2>
+                    <a href="#" class="see-all">See All</a>
+                </div>
+                <div class="content-grid">
+                    <!-- Article content would be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Description Page -->
+    <div class="page" id="description-page">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <button class="back-button" id="back-from-description"><i class="fas fa-arrow-left"></i></button>
+                    <div class="logo">Book Details</div>
+                    <div class="nav-icons">
+                        <a href="#"><i class="far fa-bookmark"></i></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="book-detail">
+                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Book Cover" class="book-cover">
+                <div class="book-info">
+                    <h1 class="book-title">The Silent Patient</h1>
+                    <div class="book-author">by Alex Michaelides</div>
+                    <div class="book-stats">
+                        <div class="stat"><i class="fas fa-star"></i> 4.5</div>
+                        <div class="stat"><i class="fas fa-eye"></i> 12.4K views</div>
+                        <div class="stat"><i class="fas fa-file-alt"></i> 24 chapters</div>
+                    </div>
+                    <p class="book-description">
+                        Alicia Berenson's life is seemingly perfect. A famous painter married to an in-demand fashion photographer, she lives in a grand house with big windows overlooking a park in one of London's most desirable areas. One evening, her husband Gabriel returns home late from a fashion shoot, and Alicia shoots him five times in the face and then never speaks another word.
+                    </p>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="start-reading">Start Reading</button>
+                        <button class="btn btn-outline"><i class="far fa-bookmark"></i> Bookmark</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chapter-list">
+                <h3>Chapters</h3>
+                <div class="chapter-item">
+                    <div class="chapter-title">Chapter 1: The Perfect Life</div>
+                    <div class="chapter-views">1.2K views</div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-title">Chapter 2: The Crime</div>
+                    <div class="chapter-views">987 views</div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-title">Chapter 3: The Aftermath</div>
+                    <div class="chapter-views">845 views</div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-title">Chapter 4: The Investigation</div>
+                    <div class="chapter-views">723 views</div>
+                </div>
+                <div class="chapter-item">
+                    <div class="chapter-title">Chapter 5: The Truth Revealed</div>
+                    <div class="chapter-views">654 views</div>
+                </div>
+            </div>
+
+            <div class="comments-section">
+                <h3>Comments (24)</h3>
+                <div class="comment-form">
+                    <input type="text" class="comment-input" placeholder="Add a comment...">
+                    <button class="comment-submit">Post</button>
+                </div>
+                <div class="comment">
+                    <div class="comment-header">
+                        <div class="comment-author">BookLover42</div>
+                        <div class="comment-date">2 days ago</div>
+                    </div>
+                    <div class="comment-text">This book kept me on the edge of my seat! The twist at the end completely shocked me.</div>
+                </div>
+                <div class="comment">
+                    <div class="comment-header">
+                        <div class="comment-author">ReadingEnthusiast</div>
+                        <div class="comment-date">1 week ago</div>
+                    </div>
+                    <div class="comment-text">Alicia's character development is incredible. One of the best psychological thrillers I've read this year.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reading Page -->
+    <div class="page" id="reading-page">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <button class="back-button" id="back-from-reading"><i class="fas fa-arrow-left"></i></button>
+                    <div class="logo">Chapter 1</div>
+                    <div class="nav-icons">
+                        <a href="#"><i class="fas fa-font"></i></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="reading-content">
+                <h2>The Perfect Life</h2>
+                <p>Alicia Berenson lived in one of the most desirable neighborhoods in London. Her house, a grand Victorian with large windows that overlooked the park, was the envy of many. She was a successful painter, her works displayed in galleries across the city. Her husband, Gabriel, was an in-demand fashion photographer, his career skyrocketing in recent years.</p>
+                
+                <p>To the outside world, they were the perfect couple. They attended gallery openings together, hosted dinner parties for London's elite, and traveled to exotic locations for Gabriel's photoshoots. But behind closed doors, their life was far from perfect.</p>
+                
+                <p>Alicia had been struggling with her mental health for years. The pressure to create new works, to maintain their public image, was taking its toll. Gabriel, consumed by his career, was often absent, both physically and emotionally.</p>
+                
+                <p>On the surface, everything appeared normal. The house was always immaculate, the garden perfectly manicured. But Alicia felt like she was living in a gilded cage, trapped by expectations and a marriage that was slowly unraveling.</p>
+                
+                <p>That fateful evening, when Gabriel returned home late from another photoshoot, something inside Alicia snapped. The argument started as it always did - with accusations and defensiveness. But this time, it ended with five gunshots that would change everything.</p>
+            </div>
+
+            <div class="chapter-nav">
+                <button class="nav-btn" id="prev-chapter"><i class="fas fa-chevron-left"></i> Previous</button>
+                <button class="nav-btn" id="next-chapter">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="comments-section">
+                <h3>Comments</h3>
+                <div class="comment-form">
+                    <input type="text" class="comment-input" placeholder="Add a comment...">
+                    <button class="comment-submit">Post</button>
+                </div>
+                <div class="comment">
+                    <div class="comment-header">
+                        <div class="comment-author">ThrillerFan</div>
+                        <div class="comment-date">5 hours ago</div>
+                    </div>
+                    <div class="comment-text">What a gripping opening chapter! I'm already hooked.</div>
+                </div>
+                <div class="comment">
+                    <div class="comment-header">
+                        <div class="comment-author">MysteryReader</div>
+                        <div class="comment-date">1 day ago</div>
+                    </div>
+                    <div class="comment-text">The atmosphere in this chapter is so tense. Can't wait to read more!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Page -->
+    <div class="page" id="account-page">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <button class="back-button" id="back-from-account"><i class="fas fa-arrow-left"></i></button>
+                    <div class="logo">My Account</div>
+                    <div class="nav-icons">
+                        <a href="#"><i class="fas fa-cog"></i></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-header">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2>Alex Johnson</h2>
+            <p>Premium Member</p>
+        </div>
+
+        <div class="container">
+            <h3 class="section-title">Reading History</h3>
+            
+            <div class="history-item">
+                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Book Cover" class="history-cover">
+                <div class="history-info">
+                    <div class="history-title">The Silent Patient</div>
+                    <div class="history-meta">Alex Michaelides • Last read: Chapter 5</div>
+                    <div class="history-progress">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-item">
+                <img src="https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Manga Cover" class="history-cover">
+                <div class="history-info">
+                    <div class="history-title">Attack on Titan</div>
+                    <div class="history-meta">Hajime Isayama • Last read: Chapter 42</div>
+                    <div class="history-progress">
+                        <div class="progress-bar" style="width: 80%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-item">
+                <img src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Article Cover" class="history-cover">
+                <div class="history-info">
+                    <div class="history-title">The Future of AI</div>
+                    <div class="history-meta">Tech Insights • Read 3 days ago</div>
+                    <div class="history-progress">
+                        <div class="progress-bar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-item">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Book Cover" class="history-cover">
+                <div class="history-info">
+                    <div class="history-title">Dune</div>
+                    <div class="history-meta">Frank Herbert • Last read: Chapter 12</div>
+                    <div class="history-progress">
+                        <div class="progress-bar" style="width: 45%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-page="home-page">
+            <i class="fas fa-home nav-icon"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" data-page="books-page">
+            <i class="fas fa-book nav-icon"></i>
+            <span>Books</span>
+        </div>
+        <div class="nav-item" data-page="manga-page">
+            <i class="fas fa-paint-brush nav-icon"></i>
+            <span>Manga</span>
+        </div>
+        <div class="nav-item" data-page="articles-page">
+            <i class="fas fa-newspaper nav-icon"></i>
+            <span>Articles</span>
+        </div>
+        <div class="nav-item" data-page="account-page">
+            <i class="fas fa-user nav-icon"></i>
+            <span>Account</span>
+        </div>
+    </div>
+
+    <script>
+        // Page Navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category navigation
+            const categoryItems = document.querySelectorAll('.category-item');
+            const sections = document.querySelectorAll('.section');
+            
+            categoryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    
+                    // Update active category
+                    categoryItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === target) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Content card click - go to description page
+            const contentCards = document.querySelectorAll('.content-card');
+            contentCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    document.getElementById('home-page').classList.remove('active');
+                    document.getElementById('description-page').classList.add('active');
+                });
+            });
+            
+            // Start reading button
+            document.getElementById('start-reading').addEventListener('click', function() {
+                document.getElementById('description-page').classList.remove('active');
+                document.getElementById('reading-page').classList.add('active');
+            });
+            
+            // Back buttons
+            document.getElementById('back-from-description').addEventListener('click', function() {
+                document.getElementById('description-page').classList.remove('active');
+                document.getElementById('home-page').classList.add('active');
+            });
+            
+            document.getElementById('back-from-reading').addEventListener('click', function() {
+                document.getElementById('reading-page').classList.remove('active');
+                document.getElementById('description-page').classList.add('active');
+            });
+            
+            document.getElementById('back-from-account').addEventListener('click', function() {
+                document.getElementById('account-page').classList.remove('active');
+                document.getElementById('home-page').classList.add('active');
+            });
+            
+            // Account toggle
+            document.getElementById('account-toggle').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('home-page').classList.remove('active');
+                document.getElementById('account-page').classList.add('active');
+            });
+            
+            // Bottom navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetPage = this.getAttribute('data-page');
+                    
+                    // Update active nav item
+                    navItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding page
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    if (targetPage === 'home-page') {
+                        document.getElementById('home-page').classList.add('active');
+                    } else if (targetPage === 'account-page') {
+                        document.getElementById('account-page').classList.add('active');
+                    }
+                    // For books, manga, articles pages - we'd implement these similarly
+                });
+            });
+            
+            // Comment submission
+            const commentForms = document.querySelectorAll('.comment-form');
+            commentForms.forEach(form => {
+                const submitBtn = form.querySelector('.comment-submit');
+                const input = form.querySelector('.comment-input');
+                
+                submitBtn.addEventListener('click', function() {
+                    if (input.value.trim() !== '') {
+                        // In a real app, we would send this to a server
+                        alert('Comment posted!');
+                        input.value = '';
+                    }
+                });
+                
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        submitBtn.click();
+                    }
+                });
+            });
+            
+            // Chapter navigation
+            document.getElementById('prev-chapter').addEventListener('click', function() {
+                alert('Going to previous chapter');
+            });
+            
+            document.getElementById('next-chapter').addEventListener('click', function() {
+                alert('Going to next chapter');
+            });
+        });
+    </script>
+</body>
+</html>
