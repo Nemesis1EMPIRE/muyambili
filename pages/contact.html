@@ -125,7 +125,7 @@
                             </div>
                             <div class="info-content">
                                 <h3>Téléphone</h3>
-                                <p>+33 1 23 45 67 89</p>
+                                <p>+241 74 67 58 14</p>
                                 <span>Lun-Ven: 9h-18h</span>
                             </div>
                         </div>
@@ -136,8 +136,8 @@
                             </div>
                             <div class="info-content">
                                 <h3>Adresse</h3>
-                                <p>123 Rue de la Lecture</p>
-                                <p>75001 Paris, France</p>
+                                <p>Libreville, Gabon</p>
+                                <p></p>
                             </div>
                         </div>
 
@@ -146,7 +146,7 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="info-content">
-                                <h3>Horaires</h3>
+                                <h3>Horaires service client</h3>
                                 <p>Lundi - Vendredi: 9h-18h</p>
                                 <p>Samedi: 10h-16h</p>
                             </div>
@@ -157,10 +157,14 @@
                     <div class="contact-form-container">
                         <div class="form-header">
                             <h2>Envoyez-nous un message</h2>
-                            <p>Remplissez le formulaire ci-dessous et nous vous répondrons rapidement</p>
+                            <p>Remplissez le formulaire et il s'ouvrira dans votre application email</p>
                         </div>
 
-                        <form class="contact-form" id="contactForm">
+                        <form class="contact-form" 
+                              action="mailto:contact@muyambili.com" 
+                              method="post" 
+                              enctype="text/plain">
+                              
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="firstName">Prénom *</label>
@@ -179,14 +183,7 @@
 
                             <div class="form-group">
                                 <label for="subject">Sujet *</label>
-                                <select id="subject" name="subject" required>
-                                    <option value="">Choisissez un sujet</option>
-                                    <option value="support">Support technique</option>
-                                    <option value="bug">Signaler un bug</option>
-                                    <option value="suggestion">Suggestion</option>
-                                    <option value="partnership">Partenariat</option>
-                                    <option value="other">Autre</option>
-                                </select>
+                                <input type="text" id="subject" name="subject" required>
                             </div>
 
                             <div class="form-group">
@@ -197,8 +194,12 @@
                             <div class="form-footer">
                                 <button type="submit" class="submit-btn">
                                     <i class="fas fa-paper-plane"></i>
-                                    Envoyer le message
+                                    Ouvrir dans l'application email
                                 </button>
+                                
+                                <p class="form-note">
+                                    Le formulaire s'ouvrira dans votre client email par défaut
+                                </p>
                             </div>
                         </form>
                     </div>
@@ -254,67 +255,6 @@
     </main>
 
     <script>
-        // Gestion du formulaire de contact
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Récupérer les données du formulaire
-            const formData = {
-                firstName: document.getElementById('firstName').value,
-                lastName: document.getElementById('lastName').value,
-                email: document.getElementById('email').value,
-                subject: document.getElementById('subject').value,
-                message: document.getElementById('message').value
-            };
-
-            // Simulation d'envoi (à remplacer par un vrai envoi)
-            simulateFormSubmission(formData);
-        });
-
-        function simulateFormSubmission(formData) {
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.innerHTML;
-            
-            // Afficher le loading
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
-            submitBtn.disabled = true;
-
-            // Simulation d'envoi
-            setTimeout(() => {
-                // Réinitialiser le bouton
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                // Afficher le message de succès
-                showSuccessMessage();
-                
-                // Réinitialiser le formulaire
-                document.getElementById('contactForm').reset();
-            }, 2000);
-        }
-
-        function showSuccessMessage() {
-            // Créer un élément de message de succès
-            const successMessage = document.createElement('div');
-            successMessage.className = 'success-message';
-            successMessage.innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                <div>
-                    <h3>Message envoyé !</h3>
-                    <p>Nous vous répondrons dans les plus brefs délais.</p>
-                </div>
-            `;
-            
-            // Insérer avant le formulaire
-            const formContainer = document.querySelector('.contact-form-container');
-            formContainer.insertBefore(successMessage, formContainer.firstChild);
-            
-            // Supprimer après 5 secondes
-            setTimeout(() => {
-                successMessage.remove();
-            }, 5000);
-        }
-
         // Gestion de la FAQ
         document.querySelectorAll('.faq-question').forEach(question => {
             question.addEventListener('click', () => {
