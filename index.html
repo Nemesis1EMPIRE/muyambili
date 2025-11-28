@@ -1,435 +1,638 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Lectio — Lectures</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NovelHub — Lectures</title>
+
+<!-- Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-/* ====== RESET ====== */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial; }
-body { display: flex; height: 100vh; background:#f5f5f5; }
-
-/* ===== SIDEBAR (DESKTOP) ===== */
-.sidebar {
-  width: 80px;
-  background: #111;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  padding-top: 20px;
-  align-items: center;
+/* ---------------- Reset & base ---------------- */
+:root{
+  --bg:#0f1724; --card:#0b1220; --muted:#9ca3af; --accent:#4f46e5; --accent-2:#ff7e5f; --glass: rgba(255,255,255,0.03);
+  --radius:12px; --shadow: 0 10px 30px rgba(2,6,23,0.6);
+  --light-bg: #f5f7fb; --light-card:#ffffff; --light-text:#0b1220;
 }
-.sidebar button {
-  background: none;
-  border: none;
-  color: white;
-  margin: 20px 0;
-  font-size: 20px;
-  cursor: pointer;
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family: Inter, system-ui, "Segoe UI", Roboto, Arial;
+  background: linear-gradient(180deg,#f7f9fc,#eef3fb);
+  color: #0b1220;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.48;
 }
 
-/* ===== BOTTOM BAR (MOBILE) ===== */
-.bottombar {
-  display:none;
-  position: fixed;
-  bottom: 0; left:0;
-  width: 100%;
-  background: #111;
-  padding:10px 0;
+/* ---------------- App layout ---------------- */
+.app {
+  display:grid;
+  grid-template-columns:88px 1fr;
+  min-height:100vh;
+  gap:0;
+}
+
+/* Sidebar desktop */
+.sidebar{
+  background:linear-gradient(180deg,#111827,#0b1220);
+  padding:18px;
   display:flex;
-  justify-content: space-around;
-}
-.bottombar button {
-  background:none;
-  border:none;
+  flex-direction:column;
+  gap:12px;
+  align-items:center;
   color:white;
-  font-size:22px;
+}
+.logo{
+  width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),#7c3aed);
+  display:flex;align-items:center;justify-content:center;font-weight:800;
+  box-shadow:var(--shadow);
+  color:white;
+}
+.nav-btn{
+  width:56px;height:56px;border-radius:12px;border:0;background:transparent;color:rgba(255,255,255,0.8);
+  display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;
+}
+.nav-btn.active{ background:rgba(255,255,255,0.04); color:var(--accent); transform:translateY(-2px); }
+
+/* header (top) spans full width */
+.header{
+  grid-column: 1 / -1;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  padding:18px 28px;
+  background:transparent;
+  position:sticky; top:0; z-index:20;
+  backdrop-filter: blur(6px);
 }
 
-/* ===== MAIN ===== */
-main { flex: 1; overflow-y: auto; }
+/* site title + subtitle */
+.brand{
+  display:flex;flex-direction:column;gap:4px;
+}
+.brand h1{ font-size:20px; margin:0; letter-spacing:-0.4px;}
+.brand p{ margin:0;color:var(--muted); font-size:13px; }
 
-/* ===== HEADER ===== */
-header {
-  background: #ffffff;
-  padding: 20px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+/* search */
+.search {
+  display:flex; align-items:center; gap:10px; flex:1; max-width:720px;
 }
-header h1 { margin-bottom: 10px; }
+.search input{
+  width:100%; padding:10px 14px; border-radius:999px; border:1px solid #e6e9f2;
+  box-shadow: 0 4px 12px rgba(2,6,23,0.04);
+  font-size:15px;
+}
+.search .hint{ font-size:12px; color:var(--muted); }
 
-/* ===== SEARCH ===== */
-#searchBar {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  margin-bottom:20px;
-}
+/* carousel */
+.carousel{ width:420px; height:115px; overflow:hidden; border-radius:12px; box-shadow: 0 8px 24px rgba(2,6,23,0.08); display:flex; align-items:center; padding:6px; background:white; }
+.carousel-track{ display:flex; gap:10px; transition:transform .7s cubic-bezier(.2,.9,.3,1); align-items:center; }
+.carousel-card{ min-width:200px; height:100px; border-radius:10px; overflow:hidden; background-size:cover; background-position:center; position:relative; display:flex; align-items:flex-end; padding:10px; color:white; }
+.carousel-card .label{ background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.6)); padding:6px 8px; border-radius:8px; font-weight:600; }
 
-/* ===== CAROUSEL ===== */
-#carousel {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-}
-.carousel-item {
-  min-width: 300px;
-  margin-right: 10px;
-  scroll-snap-align: center;
-}
-.carousel-item img {
-  width: 100%;
-  border-radius: 10px;
-}
+/* main content area */
+.main { padding:28px; background:transparent; overflow:auto; }
 
-/* ===== GRID ===== */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
-  gap: 20px;
-  padding: 20px;
+/* sections */
+.section-title{
+  display:flex; justify-content:space-between; align-items:center; margin:22px 0 12px;
 }
-.item img {
-  width:100%;
-  border-radius: 10px;
-}
-.item-title { font-weight: bold; margin-top: 5px; }
-
-/* ===== PAGES ===== */
-.page { display:none; padding: 20px; }
-.active { display:block; }
-
-/* ===== DESCRIPTION ===== */
-.description-cover {
-  width: 200px;
-  border-radius:10px;
-}
-.chapter-link {
-  display:block;
-  margin:10px 0;
-  padding:10px;
-  background:#ddd;
-  border-radius:5px;
-  cursor:pointer;
+.content-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+  gap:18px;
 }
 
-/* ===== COMMENTAIRES ===== */
-textarea {
-  width: 100%;
-  padding:10px;
-  margin-top:10px;
+/* card */
+.card{
+  background:white; border-radius:12px; overflow:hidden; box-shadow:0 8px 22px rgba(2,6,23,0.06);
+  cursor:pointer; transition:transform .22s ease, box-shadow .22s ease;
 }
-.comment {
-  background:white;
-  padding:10px;
-  border-radius:5px;
-  margin-top:10px;
-  border-left:5px solid #333;
-}
+.card:hover{ transform:translateY(-6px); box-shadow:0 20px 40px rgba(2,6,23,0.12); }
+.card .cover{ height:260px; background-size:cover; background-position:center; }
+.card .card-body{ padding:12px; }
+.card h3{ margin:0 0 6px; font-size:16px; }
+.card p{ margin:0; color:var(--muted); font-size:13px; }
+.card .meta{ display:flex; justify-content:space-between; margin-top:10px; font-size:12px; color:var(--muted); }
 
-/* ===== MOBILE ===== */
-@media(max-width:800px){
-  .sidebar { display:none; }
-  .bottombar { display:flex; }
-  body { flex-direction: column; }
-  main { flex:1; margin-bottom:70px; }
+/* description page */
+.page{ display:none; }
+.page.active{ display:block; }
+.detail{
+  display:grid; grid-template-columns: 320px 1fr; gap:22px; align-items:start;
+}
+.detail .cover-large{ width:320px; height:420px; border-radius:12px; background-size:cover; background-position:center; box-shadow:0 12px 30px rgba(2,6,23,0.08); }
+.detail h1{ margin-bottom:6px; }
+.detail .meta{ color:var(--muted); margin-bottom:12px; }
+.chapters{ background:white; padding:14px; border-radius:12px; box-shadow:0 10px 28px rgba(2,6,23,0.06); }
+.chapter-row{ display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #f0f2f6; align-items:center; }
+.chapter-row:last-child{ border-bottom:none; }
+.chapter-row button{ padding:8px 12px; border-radius:8px; border:0; background:var(--accent); color:white; cursor:pointer; }
+
+/* reader */
+.reader{
+  background:white; padding:18px; border-radius:12px; box-shadow:0 12px 40px rgba(2,6,23,0.08);
+}
+.reader iframe{ width:100%; height:70vh; border-radius:8px; border:0; }
+
+/* comments */
+.comment-form{ margin-top:14px; display:flex; gap:10px; }
+.comment-form textarea{ flex:1; padding:12px; border-radius:10px; border:1px solid #e6e9f2; resize:vertical; min-height:80px; }
+.comment{ background:white; padding:12px; border-radius:10px; margin-top:10px; box-shadow:0 6px 18px rgba(2,6,23,0.04); }
+.comment .meta{ font-size:12px; color:var(--muted); margin-bottom:6px; }
+
+/* account */
+.account-panel{ background:white; padding:16px; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.06); }
+.history-row{ display:flex; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid #f0f2f6; }
+.history-row:last-child{ border-bottom:none; }
+.favicon{ width:56px; height:76px; border-radius:8px; background-size:cover; background-position:center; }
+
+/* mobile adjustments */
+@media (max-width:900px){
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position:fixed; bottom:12px; left:50%; transform:translateX(-50%); flex-direction:row; padding:8px; border-radius:999px; gap:6px; box-shadow:0 12px 36px rgba(2,6,23,0.12); }
+  .header{ flex-direction:column; align-items:stretch; gap:12px; padding:14px; }
+  .carousel{ width:100%; height:150px; }
+  .content-grid{ grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); }
+  .detail{ grid-template-columns: 1fr; }
+  .detail .cover-large{ width:100%; height:320px; }
+  .reader iframe{ height:60vh; }
 }
 </style>
 </head>
-
 <body>
 
-<!-- SIDEBAR DESKTOP -->
-<div class="sidebar">
-  <button onclick="showPage('home')">🏠</button>
-  <button onclick="showPage('books')">📚</button>
-  <button onclick="showPage('manga')">📖</button>
-  <button onclick="showPage('articles')">📰</button>
-  <button onclick="showPage('account')">👤</button>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" aria-label="Navigation">
+    <div class="logo" title="NovelHub">NH</div>
+    <button class="nav-btn active" data-route="home" title="Home"><i class="fa-solid fa-house"></i></button>
+    <button class="nav-btn" data-route="books" title="Books"><i class="fa-solid fa-book"></i></button>
+    <button class="nav-btn" data-route="manga" title="Manga"><i class="fa-solid fa-book-open"></i></button>
+    <button class="nav-btn" data-route="articles" title="Articles"><i class="fa-solid fa-newspaper"></i></button>
+    <button class="nav-btn" data-route="account" title="Account"><i class="fa-solid fa-user"></i></button>
+  </aside>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="brand">
+      <h1>NovelHub</h1>
+      <p>Romans · Mangas · Articles</p>
+    </div>
+
+    <div class="search">
+      <input id="searchInput" placeholder="Recherche: titre, auteur, genre — ex: kind:book author:L. Nkomo" />
+      <div class="search-hint" style="min-width:120px;text-align:right;color:var(--muted);font-size:13px">Résultats en direct</div>
+    </div>
+
+    <div class="carousel" aria-hidden="false">
+      <div class="carousel-track" id="carouselTrack"></div>
+    </div>
+  </header>
+
+  <!-- MAIN content -->
+  <main class="main">
+
+    <!-- HOME -->
+    <section id="page-home" class="page active">
+      <div class="section-title"><h2>Featured Novels</h2><a class="view-all" href="#" onclick="navigate('books')">Voir tout</a></div>
+      <div class="content-grid" id="homeBooks"></div>
+
+      <div class="section-title"><h2>Popular Manga</h2><a class="view-all" href="#" onclick="navigate('manga')">Voir tout</a></div>
+      <div class="content-grid" id="homeManga"></div>
+
+      <div class="section-title"><h2>Latest Articles</h2><a class="view-all" href="#" onclick="navigate('articles')">Voir tout</a></div>
+      <div class="content-grid" id="homeArticles"></div>
+    </section>
+
+    <!-- BOOKS LIST -->
+    <section id="page-books" class="page">
+      <div class="section-title"><h2>Books</h2></div>
+      <div class="content-grid" id="booksGrid"></div>
+    </section>
+
+    <!-- MANGA LIST -->
+    <section id="page-manga" class="page">
+      <div class="section-title"><h2>Manga</h2></div>
+      <div class="content-grid" id="mangaGrid"></div>
+    </section>
+
+    <!-- ARTICLES LIST -->
+    <section id="page-articles" class="page">
+      <div class="section-title"><h2>Articles</h2></div>
+      <div class="content-grid" id="articlesGrid"></div>
+    </section>
+
+    <!-- DESCRIPTION -->
+    <section id="page-description" class="page">
+      <div id="descriptionWrap"></div>
+    </section>
+
+    <!-- READER -->
+    <section id="page-reader" class="page">
+      <div id="readerWrap"></div>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section id="page-account" class="page">
+      <h2>Mon compte</h2>
+      <div class="account-panel">
+        <h3>Historique de lecture</h3>
+        <div id="historyList"></div>
+        <div style="margin-top:12px"><button class="btn" id="clearHistoryBtn">Effacer l'historique</button></div>
+      </div>
+    </section>
+
+  </main>
 </div>
-
-<!-- BOTTOMBAR MOBILE -->
-<div class="bottombar">
-  <button onclick="showPage('home')">🏠</button>
-  <button onclick="showPage('books')">📚</button>
-  <button onclick="showPage('manga')">📖</button>
-  <button onclick="showPage('articles')">📰</button>
-  <button onclick="showPage('account')">👤</button>
-</div>
-
-<main>
-
-<!-- =========== PAGE ACCUEIL =========== -->
-<div id="home" class="page active">
-
-<header>
-  <h1>Lectio</h1>
-  <input type="text" id="searchBar" placeholder="Rechercher un titre, un genre ou un auteur..." oninput="searchContent()">
-
-  <!-- CAROUSEL -->
-  <div id="carousel">
-    <div class="carousel-item"><img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f" /></div>
-    <div class="carousel-item"><img src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d" /></div>
-    <div class="carousel-item"><img src="https://images.unsplash.com/photo-1496104679561-38d3af0ef3e8" /></div>
-  </div>
-</header>
-
-<div id="searchResults" class="grid"></div>
-
-</div>
-
-<!-- =========== PAGE LIVRES =========== -->
-<div id="books" class="page">
-  <h2>Livres</h2>
-  <div id="booksGrid" class="grid"></div>
-</div>
-
-<!-- =========== PAGE MANGA =========== -->
-<div id="manga" class="page">
-  <h2>Mangas</h2>
-  <div id="mangaGrid" class="grid"></div>
-</div>
-
-<!-- =========== PAGE ARTICLES =========== -->
-<div id="articles" class="page">
-  <h2>Articles</h2>
-  <div id="articlesGrid" class="grid"></div>
-</div>
-
-<!-- =========== PAGE DESCRIPTION =========== -->
-<div id="description" class="page"></div>
-
-<!-- =========== PAGE LECTURE =========== -->
-<div id="reader" class="page">
-  <h2 id="readerTitle"></h2>
-  <iframe id="pdfViewer" style="width:100%;height:80vh;border:none;"></iframe>
-  <p id="viewsCounter"></p>
-</div>
-
-<!-- =========== PAGE COMPTE =========== -->
-<div id="account" class="page">
-  <h2>Mon compte</h2>
-  <h3>Historique de lecture</h3>
-  <div id="history"></div>
-</div>
-
-</main>
 
 <script>
-/* ===========================================================
-   BASE DE DONNÉES AVEC IMAGES RÉELLES + PDF RÉELS
-=========================================================== */
-
+/* ===========================
+   Data (books/manga/articles)
+   =========================== */
+/* Realistic items (images from picsum / unsplash; PDF: w3 dummy pdf) */
 const DUMMY_PDF = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
-const books = [
-  {
-    id:"book1",
-    type:"book",
-    title:"Les Flammes du Destin",
-    author:"A. Mavoko",
-    genre:"Fantasy",
-    cover:"https://images.unsplash.com/photo-1544933231-bd53f7f1cb3c",
-    summary:"Une jeune guerrière découvre un pouvoir ancestral capable de sauver ou détruire son royaume.",
-    chapters:[
-      { title:"Chapitre 1", file:DUMMY_PDF },
-      { title:"Chapitre 2", file:DUMMY_PDF }
-    ]
-  },
-  {
-    id:"book2",
-    type:"book",
-    title:"L’Ombre du Jaguar",
-    author:"Michel N'Gouabi",
-    genre:"Thriller",
-    cover:"https://images.unsplash.com/photo-1528207622230-428e1f8a88e3",
-    summary:"Un inspecteur poursuit un tueur en série à Libreville.",
-    chapters:[
-      { title:"Chapitre 1", file:DUMMY_PDF }
-    ]
-  }
+const booksDB = [
+  { id:'b_lastkingdom', kind:'book', title:'The Last Kingdom', author:'Elena Rivers', genre:'Fantasy',
+    cover:'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1200&q=80', summary:'An epic fantasy novel about a lost kingdom and the hero who must save it from darkness.',
+    chapters:[ {id:'b_lastkingdom_c1', title:'Chapter 1: The Call', file:DUMMY_PDF}, {id:'b_lastkingdom_c2', title:'Chapter 2: The Crossing', file:DUMMY_PDF} ] },
+
+  { id:'b_echoes', kind:'book', title:'Echoes of Tomorrow', author:'Marcus Thorne', genre:'Sci-Fi',
+    cover:'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1200&q=80', summary:'A sci-fi tale exploring time fractures and human resilience.',
+    chapters:[ {id:'b_echoes_c1', title:'Prologue', file:DUMMY_PDF} ] },
+
+  { id:'b_whispers', kind:'book', title:'Whispers in the Dark', author:'Isabella Cruz', genre:'Mystery',
+    cover:'https://images.unsplash.com/photo-1496104679561-38d3af0ef3e8?w=1200&q=80', summary:'A taut mystery that follows a reporter uncovering hidden city secrets.',
+    chapters:[ {id:'b_whispers_c1', title:'Chapter 1', file:DUMMY_PDF} ] },
+
+  { id:'b_shadowfall', kind:'book', title:'Shadow Fall', author:'David Chen', genre:'Thriller',
+    cover:'https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?w=1200&q=80', summary:'A conspiracy thriller with high stakes and darker motives.',
+    chapters:[ {id:'b_shadowfall_c1', title:'Chapter 1', file:DUMMY_PDF} ] }
 ];
 
-const mangas = [
-  {
-    id:"manga1",
-    type:"manga",
-    title:"Blade Runner X",
-    author:"Takeshi Ryu",
-    genre:"Action",
-    cover:"https://images.unsplash.com/photo-1519681393784-d120267933ba",
-    summary:"Un adolescent cybernétique tente d’échapper à l'armée.",
-    chapters:[
-      { title:"Chapitre 1", file:DUMMY_PDF },
-      { title:"Chapitre 2", file:DUMMY_PDF }
-    ]
-  }
+const mangaDB = [
+  { id:'m_cyberdreams', kind:'manga', title:'Cyber Dreams', author:'Akira Tanaka', genre:'Cyberpunk',
+    cover:'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80', summary:'A cyberpunk manga set in a neon-drenched city.',
+    chapters:[ {id:'m_cyberdreams_c1', title:'Chap. 1', file:DUMMY_PDF}, {id:'m_cyberdreams_c2', title:'Chap. 2', file:DUMMY_PDF} ] },
+
+  { id:'m_spiritblade', kind:'manga', title:'Spirit Blade', author:'Kenji Yamamoto', genre:'Action',
+    cover:'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&q=80', summary:'A warrior’s journey with spiritual blades and honor.',
+    chapters:[ {id:'m_spiritblade_c1', title:'Chap. 1', file:DUMMY_PDF} ] },
+
+  { id:'m_neonsamurai', kind:'manga', title:'Neon Samurai', author:'Takashi Ito', genre:'Action',
+    cover:'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?w=1200&q=80', summary:'A neon samurai duels corporate overlords in the city.',
+    chapters:[ {id:'m_neonsamurai_c1', title:'Chap. 1', file:DUMMY_PDF} ] }
 ];
 
-const articles = [
-  {
-    id:"article1",
-    type:"article",
-    title:"L’IA en Afrique Centrale",
-    author:"Jean-Claude M.",
-    genre:"Technologie",
-    cover:"https://images.unsplash.com/photo-1518770660439-4636190af475",
-    summary:"Analyse de la montée des startups IA.",
-    chapters:[
-      { title:"Article Complet", file:DUMMY_PDF }
-    ]
-  }
+const articlesDB = [
+  { id:'a_ai_future', kind:'article', title:'The Future of AI', author:'Dr. Sarah Chen', genre:'Technology',
+    cover:'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80', summary:'An insightful article exploring the ethical implications of artificial intelligence.',
+    chapters:[ {id:'a_ai_future_c1', title:'Full Article', file:DUMMY_PDF} ] },
+
+  { id:'a_climate', kind:'article', title:'Climate Change Solutions', author:'Michael Roberts', genre:'Environment',
+    cover:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80', summary:'An overview of practical strategies to mitigate climate change.',
+    chapters:[ {id:'a_climate_c1', title:'Full Article', file:DUMMY_PDF} ] },
+
+  { id:'a_psych_read', kind:'article', title:'The Psychology of Reading', author:'Dr. Emily Watson', genre:'Psychology',
+    cover:'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80', summary:'Why reading affects human cognition and empathy.',
+    chapters:[ {id:'a_psych_read_c1', title:'Full Article', file:DUMMY_PDF} ] }
 ];
 
-/* ===========================================================
-   AFFICHAGE DES GRILLES
-=========================================================== */
+/* unified list convenience */
+function allItems(){ return [...booksDB, ...mangaDB, ...articlesDB]; }
 
-function loadGrids() {
-  displayGrid("booksGrid", books);
-  displayGrid("mangaGrid", mangas);
-  displayGrid("articlesGrid", articles);
+/* =========== localStorage keys =========== */
+const LS_VIEWS = 'novelhub_views';
+const LS_COMMENTS = 'novelhub_comments';
+const LS_HISTORY = 'novelhub_history';
+
+/* =========== helpers =========== */
+function $(sel){ return document.querySelector(sel); }
+function create(tag,attrs={}){ const el = document.createElement(tag); for(let k in attrs) el.setAttribute(k,attrs[k]); return el; }
+function escapeHTML(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* =========== NAVIGATION =========== */
+const navBtns = document.querySelectorAll('.nav-btn');
+navBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=> {
+    navBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const route = btn.dataset.route;
+    navigate(route);
+  });
+});
+
+function navigate(route, params){
+  // hide all pages
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  // route handling
+  if(route === 'home'){
+    $('#page-home').classList.add('active');
+    renderHome();
+  } else if(route === 'books'){
+    $('#page-books').classList.add('active');
+    renderGrid(booksDB,'#booksGrid');
+  } else if(route === 'manga'){
+    $('#page-manga').classList.add('active');
+    renderGrid(mangaDB,'#mangaGrid');
+  } else if(route === 'articles'){
+    $('#page-articles').classList.add('active');
+    renderGrid(articlesDB,'#articlesGrid');
+  } else if(route === 'account'){
+    $('#page-account').classList.add('active');
+    renderAccount();
+  } else if(route === 'description' && params){
+    $('#page-description').classList.add('active');
+    renderDescription(params.kind, params.id);
+  } else if(route === 'reader' && params){
+    $('#page-reader').classList.add('active');
+    renderReader(params.kind, params.id, params.chapterId);
+  } else {
+    // fallback to home
+    $('#page-home').classList.add('active');
+    renderHome();
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function displayGrid(container, array) {
-  const div = document.getElementById(container);
-  div.innerHTML = "";
-  array.forEach(item=>{
-    div.innerHTML += `
-      <div class="item" onclick="openDescription('${item.type}','${item.id}')">
-        <img src="${item.cover}">
-        <div class="item-title">${item.title}</div>
+/* Initialize on load */
+navigate('home');
+
+/* =========== CAROUSEL =========== */
+function buildCarousel(){
+  const track = $('#carouselTrack');
+  track.innerHTML = '';
+  const featured = [booksDB[0], mangaDB[0], articlesDB[0]];
+  featured.forEach((it,i)=>{
+    const card = create('div'); card.className='carousel-card'; card.style.backgroundImage = `url('${it.cover}')`;
+    const lbl = create('div'); lbl.className='label'; lbl.innerHTML = escapeHTML(it.title);
+    card.appendChild(lbl);
+    card.addEventListener('click', ()=> navigate('description', {kind:it.kind, id:it.id}));
+    track.appendChild(card);
+  });
+  let idx = 0;
+  setInterval(()=>{ idx = (idx+1) % Math.max(1, track.children.length); track.style.transform = `translateX(${-idx*(220)}px)`; }, 3200);
+}
+buildCarousel();
+
+/* =========== RENDER HOME =========== */
+function renderHome(){
+  renderGrid(booksDB.slice(0,4),'#homeBooks');
+  renderGrid(mangaDB.slice(0,4),'#homeManga');
+  renderGrid(articlesDB.slice(0,4),'#homeArticles');
+}
+
+/* render a grid given data and container */
+function renderGrid(items, containerSelector){
+  const container = (typeof containerSelector === 'string') ? document.querySelector(containerSelector) : containerSelector;
+  container.innerHTML = '';
+  items.forEach(it=>{
+    const card = create('div'); card.className='card';
+    card.innerHTML = `<div class="cover" style="background-image:url('${it.cover}')"></div>
+      <div class="card-body">
+        <h3>${escapeHTML(it.title)}</h3>
+        <p>${escapeHTML(it.author)}</p>
+        <div class="meta"><span>${escapeHTML(it.genre)}</span><span>${escapeHTML(it.kind || it.type || '')}</span></div>
+      </div>`;
+    card.addEventListener('click', ()=> navigate('description', {kind:it.kind, id:it.id}));
+    container.appendChild(card);
+  });
+}
+
+/* =========== SEARCH =========== */
+$('#searchInput').addEventListener('input', (e)=>{
+  const q = e.target.value.trim();
+  if(!q){ renderHome(); return; }
+  const parts = q.split(/\s+/);
+  const filters = {};
+  const terms = [];
+  parts.forEach(p=>{
+    const [k,v] = p.split(':');
+    if(v && ['kind','author','genre','title'].includes(k)) filters[k]=v.toLowerCase();
+    else terms.push(p.toLowerCase());
+  });
+  const results = allItems().filter(it=>{
+    if(filters.kind && it.kind.toLowerCase() !== filters.kind) return false;
+    if(filters.author && !it.author.toLowerCase().includes(filters.author)) return false;
+    if(filters.genre && !it.genre.toLowerCase().includes(filters.genre)) return false;
+    return terms.every(t => it.title.toLowerCase().includes(t) || it.author.toLowerCase().includes(t) || it.genre.toLowerCase().includes(t));
+  });
+  // show results in homeBooks area
+  $('#homeBooks').innerHTML = '';
+  if(results.length === 0){
+    $('#homeBooks').innerHTML = '<div style="padding:18px;color:var(--muted)">Aucun résultat</div>';
+  } else {
+    renderGrid(results, '#homeBooks');
+  }
+});
+
+/* =========== DESCRIPTION PAGE =========== */
+function renderDescription(kind, id){
+  const list = (kind === 'book') ? booksDB : (kind === 'manga') ? mangaDB : articlesDB;
+  const it = list.find(x=>x.id===id);
+  if(!it){ $('#descriptionWrap').innerHTML = '<div>Item not found.</div>'; return; }
+
+  const html = `
+    <div class="detail">
+      <div>
+        <div class="cover-large" style="background-image:url('${it.cover}')"></div>
       </div>
-    `;
-  });
-}
+      <div>
+        <h1>${escapeHTML(it.title)}</h1>
+        <div class="meta">${escapeHTML(it.author)} • ${escapeHTML(it.genre)} • ${escapeHTML(it.kind || it.type)}</div>
+        <p style="margin-top:12px;color:var(--muted)">${escapeHTML(it.summary)}</p>
+        <div style="margin-top:14px" class="card-actions">
+          <button class="btn" onclick="navigate('reader',{kind:'${kind}', id:'${id}', chapterId:'${it.chapters[0].id}'})" style="background:var(--accent); color:white; padding:10px 14px;border-radius:9px;border:0;cursor:pointer">Lire le premier chapitre</button>
+        </div>
 
-/* ===========================================================
-   NAVIGATION ENTRE LES PAGES
-=========================================================== */
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-/* ===========================================================
-   PAGE DESCRIPTION
-=========================================================== */
-function openDescription(type,id){
-  showPage("description");
-  const data = [...books,...mangas,...articles].find(x=>x.id===id);
-
-  let chaptersHtml = "";
-  data.chapters.forEach((c,i)=>{
-    chaptersHtml += `
-      <div class="chapter-link" onclick="openReader('${data.id}',${i})">
-        ${c.title}
-      </div>`;
-  });
-
-  document.getElementById("description").innerHTML = `
-    <img class="description-cover" src="${data.cover}">
-    <h2>${data.title}</h2>
-    <p><strong>Auteur :</strong> ${data.author}</p>
-    <p><strong>Genre :</strong> ${data.genre}</p>
-    <p>${data.summary}</p>
-
-    <h3>Chapitres :</h3>
-    ${chaptersHtml}
-
-    <h3>Commentaires :</h3>
-    <div id="comments"></div>
-
-    <textarea id="commentInput" placeholder="Votre commentaire..."></textarea>
-    <button onclick="addComment('${data.id}')">Publier</button>
+        <div style="margin-top:18px">
+          <h3>Chapitres</h3>
+          <div class="chapters" id="chapList"></div>
+        </div>
+      </div>
+    </div>
   `;
+  $('#descriptionWrap').innerHTML = html;
 
-  loadComments(id);
-}
-
-/* ===========================================================
-   COMMENTAIRES
-=========================================================== */
-function loadComments(id){
-  const comments = JSON.parse(localStorage.getItem("comments_"+id) || "[]");
-  const div = document.getElementById("comments");
-  div.innerHTML = comments.map(c=>`<div class="comment">${c}</div>`).join("");
-}
-
-function addComment(id){
-  const txt = document.getElementById("commentInput").value;
-  if(!txt) return;
-
-  const comments = JSON.parse(localStorage.getItem("comments_"+id) || "[]");
-  comments.push(txt);
-  localStorage.setItem("comments_"+id, JSON.stringify(comments));
-  loadComments(id);
-
-  document.getElementById("commentInput").value = "";
-}
-
-/* ===========================================================
-   LECTEUR PDF + HISTORIQUE + VUES
-=========================================================== */
-function openReader(id,chapterIndex){
-  showPage("reader");
-
-  const data = [...books,...mangas,...articles].find(x=>x.id===id);
-  const chapter = data.chapters[chapterIndex];
-
-  document.getElementById("readerTitle").innerText = data.title+" — "+chapter.title;
-  document.getElementById("pdfViewer").src = chapter.file;
-
-  // compteur de vues
-  let views = Number(localStorage.getItem("views_"+id+"_"+chapterIndex) || 0);
-  views++;
-  localStorage.setItem("views_"+id+"_"+chapterIndex, views);
-  document.getElementById("viewsCounter").innerText = views+" vues";
-
-  // historique
-  const hist = JSON.parse(localStorage.getItem("history") || "[]");
-  hist.push({ title:data.title, chapter:chapter.title, date: new Date().toLocaleString() });
-  localStorage.setItem("history", JSON.stringify(hist));
-
-  loadHistory();
-}
-
-function loadHistory(){
-  const hist = JSON.parse(localStorage.getItem("history") || "[]");
-  const div = document.getElementById("account");
-  let html = "<h2>Mon compte</h2><h3>Historique</h3>";
-  hist.forEach(h=>{
-    html += `<div>- ${h.title} — ${h.chapter} (${h.date})</div>`;
+  const chapList = $('#chapList');
+  it.chapters.forEach(ch=>{
+    const row = create('div'); row.className='chapter-row';
+    row.innerHTML = `<div style="font-weight:600">${escapeHTML(ch.title)}</div><div><button onclick="navigate('reader',{kind:'${kind}', id:'${id}', chapterId:'${ch.id}'})">Lire</button></div>`;
+    chapList.appendChild(row);
   });
-  div.innerHTML = html;
+
+  // load comments for description view
+  loadCommentsFor(it.id, null);
 }
 
-/* ===========================================================
-   RECHERCHE
-=========================================================== */
-function searchContent(){
-  const q = document.getElementById("searchBar").value.toLowerCase();
-  const all = [...books,...mangas,...articles];
-  const result = all.filter(x => x.title.toLowerCase().includes(q) || x.author.toLowerCase().includes(q) || x.genre.toLowerCase().includes(q));
+/* =========== READER =========== */
+function renderReader(kind, id, chapterId){
+  const list = (kind === 'book') ? booksDB : (kind === 'manga') ? mangaDB : articlesDB;
+  const it = list.find(x=>x.id===id);
+  if(!it){ $('#readerWrap').innerHTML = '<div>Item not found.</div>'; return; }
+  const ch = it.chapters.find(c=>c.id===chapterId) || it.chapters[0];
 
-  const div = document.getElementById("searchResults");
-  div.innerHTML = "";
-  result.forEach(item=>{
-    div.innerHTML += `
-      <div class="item" onclick="openDescription('${item.type}','${item.id}')">
-        <img src="${item.cover}">
-        <div class="item-title">${item.title}</div>
-      </div>`;
+  // increment views per chapter
+  const views = JSON.parse(localStorage.getItem(LS_VIEWS) || '{}');
+  const key = `${it.id}::${ch.id}`;
+  views[key] = (views[key]||0) + 1;
+  localStorage.setItem(LS_VIEWS, JSON.stringify(views));
+
+  // add history entry
+  const history = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+  history.unshift({id:it.id, chapterId:ch.id, title:it.title, chapterTitle:ch.title, when:new Date().toISOString()});
+  localStorage.setItem(LS_HISTORY, JSON.stringify(history.slice(0,200)));
+
+  // render reader UI
+  const html = `
+    <div class="reader">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><h2>${escapeHTML(it.title)} — <span style="color:var(--muted);font-weight:600">${escapeHTML(ch.title)}</span></h2><div style="color:var(--muted);font-size:13px">Auteur: ${escapeHTML(it.author)} • Genre: ${escapeHTML(it.genre)}</div></div>
+        <div><button class="btn" onclick="navigate('description',{kind:'${kind}', id:'${id}'})">Retour</button></div>
+      </div>
+
+      <iframe src="${ch.file}" style="margin-top:14px;border-radius:8px;width:100%;height:68vh;border:0"></iframe>
+
+      <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center">
+        <div style="color:var(--muted)">Vues: ${views[key]}</div>
+        <div>
+          <button class="btn" onclick="prevChapter('${kind}','${id}','${ch.id}')">Précédent</button>
+          <button class="btn" onclick="nextChapter('${kind}','${id}','${ch.id}')" style="margin-left:8px;background:var(--accent);color:white">Suivant</button>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <h3>Commentaires</h3>
+        <div class="comment-form">
+          <textarea id="commentInput" placeholder="Écrire un commentaire..."></textarea>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button style="background:var(--accent);color:white;padding:10px;border-radius:8px;border:0" onclick="postComment('${it.id}','${ch.id}')">Publier</button>
+          </div>
+        </div>
+        <div id="commentsList" style="margin-top:12px"></div>
+      </div>
+    </div>
+  `;
+  $('#readerWrap').innerHTML = html;
+  loadCommentsFor(it.id, ch.id);
+}
+
+/* previous / next chapter helpers */
+function prevChapter(kind,id,chapterId){
+  const list = (kind === 'book') ? booksDB : (kind === 'manga') ? mangaDB : articlesDB;
+  const it = list.find(x=>x.id===id);
+  if(!it) return;
+  const idx = it.chapters.findIndex(c=>c.id===chapterId);
+  if(idx>0) navigate('reader', {kind,id,chapterId:it.chapters[idx-1].id});
+  else alert('C\'est le premier chapitre.');
+}
+function nextChapter(kind,id,chapterId){
+  const list = (kind === 'book') ? booksDB : (kind === 'manga') ? mangaDB : articlesDB;
+  const it = list.find(x=>x.id===id);
+  if(!it) return;
+  const idx = it.chapters.findIndex(c=>c.id===chapterId);
+  if(idx < it.chapters.length-1) navigate('reader', {kind,id,chapterId:it.chapters[idx+1].id});
+  else alert('Fin des chapitres.');
+}
+
+/* go back to chapter list */
+function goBackToChapters(){ window.history.back(); }
+
+/* =========== COMMENTS (localStorage) =========== */
+function loadCommentsFor(itemId, chapterId){
+  const all = JSON.parse(localStorage.getItem(LS_COMMENTS) || '{}');
+  const key = chapterId ? `${itemId}::${chapterId}` : `${itemId}::desc`;
+  const list = all[key] || [];
+  const out = list.map(c=>`<div class="comment"><div class="meta">${escapeHTML(c.when)}</div><div>${escapeHTML(c.text)}</div></div>`).join('');
+  const target = $('#commentsList') || $('#descriptionWrap') && $('#descriptionWrap').querySelector('#commentsList');
+  // If on description page, place comments in description area
+  if($('#page-description').classList.contains('active')){
+    // ensure there's a comments container at descriptionWrap: failsafe handled in renderDescription
+    const descComments = document.querySelector('#descriptionWrap #descComments');
+    if(descComments) descComments.innerHTML = out || '<div style="color:var(--muted)">Aucun commentaire</div>';
+  } else if($('#page-reader').classList.contains('active')){
+    $('#commentsList').innerHTML = out || '<div style="color:var(--muted)">Aucun commentaire</div>';
+  }
+}
+function postComment(itemId, chapterId){
+  const txt = $('#commentInput').value.trim();
+  if(!txt){ alert('Écris ton commentaire.'); return; }
+  const all = JSON.parse(localStorage.getItem(LS_COMMENTS) || '{}');
+  const key = `${itemId}::${chapterId}`;
+  all[key] = all[key] || [];
+  all[key].push({ text: txt, when: new Date().toLocaleString() });
+  localStorage.setItem(LS_COMMENTS, JSON.stringify(all));
+  $('#commentInput').value = '';
+  loadCommentsFor(itemId, chapterId);
+}
+
+/* ===== description comments (for description page) ===== */
+function loadCommentsForDescription(itemId){
+  const all = JSON.parse(localStorage.getItem(LS_COMMENTS) || '{}');
+  const key = `${itemId}::desc`;
+  const list = all[key] || [];
+  const out = list.map(c=>`<div class="comment"><div class="meta">${escapeHTML(c.when)}</div><div>${escapeHTML(c.text)}</div></div>`).join('');
+  const holder = document.querySelector('#descriptionWrap #descComments');
+  if(holder) holder.innerHTML = out || '<div style="color:var(--muted)">Aucun commentaire</div>';
+}
+function postCommentDescription(itemId){
+  const ta = document.querySelector('#descriptionWrap #descInput');
+  if(!ta) return;
+  const txt = ta.value.trim();
+  if(!txt){ alert('Écris ton commentaire.'); return; }
+  const all = JSON.parse(localStorage.getItem(LS_COMMENTS) || '{}');
+  const key = `${itemId}::desc`;
+  all[key] = all[key] || [];
+  all[key].push({ text: txt, when: new Date().toLocaleString() });
+  localStorage.setItem(LS_COMMENTS, JSON.stringify(all));
+  ta.value=''; loadCommentsForDescription(itemId);
+}
+
+/* =========== ACCOUNT / HISTORY =========== */
+function renderAccount(){
+  const history = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+  const holder = $('#historyList');
+  holder.innerHTML = '';
+  if(history.length === 0){
+    holder.innerHTML = '<div style="color:var(--muted)">Aucun historique. Lis des chapitres pour remplir cette section.</div>';
+    return;
+  }
+  history.slice(0,50).forEach(h=>{
+    const it = allItems().find(x=>x.id===h.id) || {};
+    const row = create('div'); row.className='history-row';
+    row.innerHTML = `<div class="favicon" style="background-image:url('${it.cover || ''}')"></div>
+      <div style="flex:1"><div style="font-weight:700">${escapeHTML(h.title)}</div><div style="color:var(--muted);font-size:13px">${escapeHTML(h.chapterTitle)} • ${new Date(h.when).toLocaleString()}</div></div>
+      <div><button class="btn" onclick="navigate('reader',{kind:'${it.kind}', id:'${h.id}', chapterId:'${h.chapterId}'})">Ouvrir</button></div>`;
+    holder.appendChild(row);
   });
 }
+$('#clearHistoryBtn').addEventListener('click', ()=>{
+  if(confirm('Effacer l\'historique ?')){ localStorage.removeItem(LS_HISTORY); renderAccount(); }
+});
 
-/* ===========================================================
-   INIT
-=========================================================== */
-loadGrids();
-loadHistory();
+/* =========== Utility: allItems pool =========== */
+function allItems(){ return [...booksDB, ...mangaDB, ...articlesDB]; }
 
+/* =========== initial render of list pages =========== */
+renderGrid(booksDB,'#booksGrid');
+renderGrid(mangaDB,'#mangaGrid');
+renderGrid(articlesDB,'#articlesGrid');
+renderHome();
+
+/* =========== convenience: clicking on card navigates to description handled in event listener above =========== */
+
+/* =========== Expose small API for debugging in console =========== */
+window.NovelHub = {
+  navigate, renderDescription, renderReader, allItems, getViews: ()=>JSON.parse(localStorage.getItem(LS_VIEWS)||'{}'),
+  getComments: ()=>JSON.parse(localStorage.getItem(LS_COMMENTS)||'{}'),
+  getHistory: ()=>JSON.parse(localStorage.getItem(LS_HISTORY)||'[]')
+};
 </script>
 
 </body>
