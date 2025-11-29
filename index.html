@@ -1634,6 +1634,7 @@
         let currentPdf = null;
         let currentPageNum = 1;
         let currentScale = 1.2;
+        let pdfLoadingTask = null;
 
         // =============================
         // SYSTÈME DE VUES GLOBALES
@@ -2027,20 +2028,47 @@
         };
 
         // =============================
-        // FONCTIONNALITÉS PDF
+        // FONCTIONNALITÉS PDF OPTIMISÉES
         // =============================
 
+        // Annuler le chargement d'un PDF en cours
+        function cancelPdfLoading() {
+            if (pdfLoadingTask) {
+                pdfLoadingTask.destroy();
+                pdfLoadingTask = null;
+            }
+            currentPdf = null;
+        }
+
+        // Charger un PDF avec gestion d'erreur et annulation
         async function loadPDF(url) {
+            // Annuler tout chargement en cours
+            cancelPdfLoading();
+            
             try {
                 document.getElementById('pdfViewer').innerHTML = `
                     <div class="pdf-loading">
                         <i class="fas fa-spinner fa-spin"></i>
                         <p>Chargement du PDF...</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-outline" onclick="cancelPdfLoading(); showPage('descriptionPage')">
+                                <i class="fas fa-times"></i> Annuler
+                            </button>
+                        </div>
                     </div>
                 `;
 
-                const loadingTask = pdfjsLib.getDocument(url);
-                currentPdf = await loadingTask.promise;
+                // Configuration pour optimiser le chargement
+                pdfLoadingTask = pdfjsLib.getDocument({
+                    url: url,
+                    cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/cmaps/',
+                    cMapPacked: true,
+                    disableAutoFetch: false, // Permet le chargement progressif
+                    disableStream: false     // Permet le streaming
+                });
+                
+                currentPdf = await pdfLoadingTask.promise;
+                pdfLoadingTask = null;
                 
                 document.getElementById('pageCount').textContent = currentPdf.numPages;
                 currentPageNum = 1;
@@ -2052,39 +2080,71 @@
                     <div class="pdf-error">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Erreur de chargement du PDF</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">${error.message || 'Vérifiez votre connexion internet'}</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-primary" onclick="showPage('descriptionPage')">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </button>
+                        </div>
                     </div>
                 `;
             }
         }
 
+        // Rendu de page optimisé
         async function renderPage(pageNum) {
             if (!currentPdf) return;
 
             try {
                 const page = await currentPdf.getPage(pageNum);
-                const viewport = page.getViewport({ scale: currentScale });
+                
+                // Ajustement automatique de l'échelle pour s'adapter à l'écran
+                const container = document.getElementById('pdfViewer');
+                const containerWidth = container.clientWidth - 40; // 40px de padding
+                
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = Math.min(currentScale, containerWidth / viewport.width);
+                const scaledViewport = page.getViewport({ scale: scale });
                 
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                canvas.height = scaledViewport.height;
+                canvas.width = scaledViewport.width;
+                
+                // Indicateur de progression
+                const progressDiv = document.createElement('div');
+                progressDiv.className = 'pdf-loading';
+                progressDiv.innerHTML = `
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement de la page ${pageNum}...</p>
+                `;
+                
+                container.innerHTML = '';
+                container.appendChild(progressDiv);
                 
                 const renderContext = {
                     canvasContext: context,
-                    viewport: viewport
+                    viewport: scaledViewport
                 };
                 
                 await page.render(renderContext).promise;
                 
-                document.getElementById('pdfViewer').innerHTML = '';
-                document.getElementById('pdfViewer').appendChild(canvas);
+                container.innerHTML = '';
+                container.appendChild(canvas);
                 document.getElementById('pageNum').textContent = pageNum;
                 
             } catch (error) {
                 console.error('Erreur de rendu de page:', error);
+                document.getElementById('pdfViewer').innerHTML = `
+                    <div class="pdf-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erreur d'affichage de la page</p>
+                    </div>
+                `;
             }
         }
 
+        // Navigation entre pages
         function nextPage() {
             if (currentPdf && currentPageNum < currentPdf.numPages) {
                 currentPageNum++;
@@ -2115,6 +2175,11 @@
         // NAVIGATION ENTRE PAGES
         // =============================
         function showPage(pageId) {
+            // Annuler le chargement PDF si on quitte la page de lecture
+            if (pageId !== 'readerPage') {
+                cancelPdfLoading();
+            }
+            
             document.querySelectorAll(".page").forEach(p => p.style.display = "none");
             document.getElementById(pageId).style.display = "block";
             
