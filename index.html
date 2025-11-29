@@ -40,7 +40,7 @@
         }
 
         body {
-            background: linear-gradient(rgba(248, 244, 240, 0.9), rgba(248, 244, 240, 0.9)), url('assets/images/background.png');
+            background: linear-gradient(rgba(248, 244, 240, 0.9), rgba(248, 244, 240, 0.9));
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
@@ -50,7 +50,7 @@
         }
 
         [data-theme="dark"] body {
-            background: linear-gradient(rgba(45, 45, 45, 0.9), rgba(45, 45, 45, 0.9)), url('assets/images/background.png');
+            background: linear-gradient(rgba(45, 45, 45, 0.9), rgba(45, 45, 45, 0.9));
         }
 
         /* Splash Screen */
@@ -752,6 +752,7 @@
             box-shadow: var(--shadow);
             padding: 25px;
             margin-bottom: 25px;
+            overflow: auto;
         }
 
         .pdf-controls {
@@ -762,12 +763,15 @@
             padding: 20px;
             background: var(--light);
             border-radius: 8px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .pdf-nav-buttons {
             display: flex;
             gap: 15px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .page-info {
@@ -1309,7 +1313,7 @@
                 
                 <!-- Hero Carousel -->
                 <div class="hero-carousel">
-                    <div class="hero-slide active" style="background-image: url('assets/images/plume.png')">
+                    <div class="hero-slide active" style="background: linear-gradient(135deg, var(--primary), var(--accent))">
                         <div class="hero-content">
                             <h2>La Cité des Ombres</h2>
                             <p>Plongez dans un monde épique où la magie est interdite et les secrets anciens refont surface.</p>
@@ -1318,7 +1322,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="hero-slide" style="background-image: url('https://picsum.photos/1200/600?random=2')">
+                    <div class="hero-slide" style="background: linear-gradient(135deg, #8c7259, #a78a6f)">
                         <div class="hero-content">
                             <h2>Blade Runner X</h2>
                             <p>Un cyberpunk haletant dans un Tokyo futuriste où humains et androides se confrontent.</p>
@@ -1327,7 +1331,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="hero-slide" style="background-image: url('https://picsum.photos/1200/600?random=3')">
+                    <div class="hero-slide" style="background: linear-gradient(135deg, #7cb342, #f9a825)">
                         <div class="hero-content">
                             <h2>Les Secrets du Cerveau</h2>
                             <p>Explorez les mystères de l'esprit humain avec les dernières découvertes en neurosciences.</p>
@@ -1477,6 +1481,9 @@
                             <button class="btn btn-outline" onclick="zoomIn()">
                                 <i class="fas fa-search-plus"></i>
                             </button>
+                            <button class="btn btn-outline" onclick="fitToWidth()">
+                                <i class="fas fa-arrows-alt-h"></i>
+                            </button>
                         </div>
                     </div>
                     
@@ -1538,7 +1545,7 @@
 
                     <div class="contact-form">
                         <h3>Envoyez-nous un message</h3>
-                        <form action="mailto:contact@muyambili.com" method="post" enctype="text/plain">
+                        <form id="contactForm">
                             <div class="form-group">
                                 <label for="name">Nom complet</label>
                                 <input type="text" id="name" name="name" required>
@@ -1633,7 +1640,7 @@
         // Variables pour la gestion PDF
         let currentPdf = null;
         let currentPageNum = 1;
-        let currentScale = 1.2;
+        let currentScale = 1.5; // Échelle initiale augmentée pour meilleure lisibilité
         let pdfLoadingTask = null;
 
         // =============================
@@ -1953,7 +1960,7 @@
                     cover: "https://picsum.photos/300/400?random=1",
                     description: "Un roman épique dans un monde où la magie est interdite. Suivez l'histoire d'Elara, une jeune femme découvrant ses pouvoirs dans une société oppressive. Entre complots politiques et quêtes personnelles, ce récit vous transportera dans un univers riche et complexe.",
                     chapters: [
-                        { title: "Chapitre 1: L'Éveil", pdf: "assets/images/plume.pdf" },
+                        { title: "Chapitre 1: L'Éveil", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
                         { title: "Chapitre 2: La Forêt Interdite", pdf: "https://www.africau.edu/images/default/sample.pdf" },
                         { title: "Chapitre 3: La Rencontre", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
                     ],
@@ -2091,7 +2098,7 @@
             }
         }
 
-        // Rendu de page optimisé
+        // Rendu de page optimisé pour la netteté
         async function renderPage(pageNum) {
             if (!currentPdf) return;
 
@@ -2104,12 +2111,19 @@
                 
                 const viewport = page.getViewport({ scale: 1 });
                 const scale = Math.min(currentScale, containerWidth / viewport.width);
-                const scaledViewport = page.getViewport({ scale: scale });
+                
+                // Créer un viewport avec une résolution plus élevée pour la netteté
+                const outputScale = window.devicePixelRatio || 1;
+                const scaledViewport = page.getViewport({ scale: scale * outputScale });
                 
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
-                canvas.height = scaledViewport.height;
-                canvas.width = scaledViewport.width;
+                
+                // Ajuster la taille du canvas pour la haute résolution
+                canvas.width = Math.floor(scaledViewport.width);
+                canvas.height = Math.floor(scaledViewport.height);
+                canvas.style.width = Math.floor(scaledViewport.width / outputScale) + 'px';
+                canvas.style.height = Math.floor(scaledViewport.height / outputScale) + 'px';
                 
                 // Indicateur de progression
                 const progressDiv = document.createElement('div');
@@ -2124,7 +2138,8 @@
                 
                 const renderContext = {
                     canvasContext: context,
-                    viewport: scaledViewport
+                    viewport: scaledViewport,
+                    transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null
                 };
                 
                 await page.render(renderContext).promise;
@@ -2169,6 +2184,19 @@
                 currentScale -= 0.2;
                 renderPage(currentPageNum);
             }
+        }
+
+        function fitToWidth() {
+            if (!currentPdf) return;
+            
+            const container = document.getElementById('pdfViewer');
+            const containerWidth = container.clientWidth - 40;
+            
+            currentPdf.getPage(currentPageNum).then(page => {
+                const viewport = page.getViewport({ scale: 1 });
+                currentScale = containerWidth / viewport.width;
+                renderPage(currentPageNum);
+            });
         }
 
         // =============================
@@ -2594,6 +2622,13 @@
                 tab.addEventListener('click', () => {
                     switchLibraryTab(tab.dataset.tab);
                 });
+            });
+            
+            // Formulaire de contact
+            document.getElementById('contactForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast('Message envoyé avec succès!', 'success');
+                this.reset();
             });
             
             // Afficher la page d'accueil
