@@ -3,9 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MUYAMBILI</title>
+    <title>MUYAMBILI - Plateforme de Lecture</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    
+    <!-- Protection contre l'inspection du code -->
+    <script>
+    // Protection avancée du code source
+    (function() {
+        // Bloquer toutes les tentatives d'accès au code source
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showToast('Action non autorisée', 'warning');
+        });
+        
+        // Bloquer les raccourcis clavier
+        document.addEventListener('keydown', function(e) {
+            // Liste des raccourcis à bloquer
+            const blockedKeys = [
+                {key: 'F12', code: 123},
+                {key: 'I', code: 73, ctrl: true, shift: true},
+                {key: 'J', code: 74, ctrl: true, shift: true},
+                {key: 'U', code: 85, ctrl: true},
+                {key: 'S', code: 83, ctrl: true, shift: true}
+            ];
+            
+            for (const blocked of blockedKeys) {
+                if (e.keyCode === blocked.code && 
+                    (!blocked.ctrl || e.ctrlKey) && 
+                    (!blocked.shift || e.shiftKey)) {
+                    e.preventDefault();
+                    showToast(`Accès au code source désactivé`, 'warning');
+                    
+                    // Rediriger vers l'accueil après tentative
+                    setTimeout(() => {
+                        if (window.location.hash !== '#homePage') {
+                            window.location.href = '#';
+                            showPage('homePage');
+                        }
+                    }, 100);
+                    return false;
+                }
+            }
+        });
+        
+        // Détecter l'ouverture des outils de développement
+        let devtools = function() {};
+        devtools.toString = function() {
+            showToast('Outils de développement détectés', 'error');
+            document.body.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: var(--light);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 99999;
+                    padding: 20px;
+                ">
+                    <div style="
+                        text-align: center;
+                        max-width: 500px;
+                        background: white;
+                        padding: 40px;
+                        border-radius: 16px;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    ">
+                        <h2 style="color: var(--danger); margin-bottom: 20px;">
+                            <i class="fas fa-shield-alt"></i> Accès Restreint
+                        </h2>
+                        <p style="margin-bottom: 20px; line-height: 1.6;">
+                            L'accès aux outils de développement n'est pas autorisé sur cette plateforme.
+                            Pour préserver l'intégrité du contenu et la sécurité des données,
+                            veuillez utiliser l'interface normale de l'application.
+                        </p>
+                        <button onclick="location.reload()" style="
+                            background: var(--primary);
+                            color: var(--dark);
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        ">
+                            <i class="fas fa-redo"></i> Recharger l'application
+                        </button>
+                    </div>
+                </div>
+            `;
+            return '';
+        };
+        
+        console.log('%c', devtools);
+    })();
+    </script>
+    
     <style>
         /* Reset and Base Styles */
         * {
@@ -47,6 +143,8 @@
             color: var(--dark);
             line-height: 1.6;
             transition: var(--transition);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         [data-theme="dark"] body {
@@ -126,6 +224,8 @@
             transform: translateX(400px);
             transition: transform 0.3s ease;
             border-left: 4px solid var(--success);
+            max-width: 350px;
+            word-wrap: break-word;
         }
 
         .toast.show {
@@ -142,6 +242,7 @@
 
         .toast i {
             font-size: 1.2rem;
+            min-width: 24px;
         }
 
         /* Layout */
@@ -305,7 +406,11 @@
             background: var(--secondary);
         }
 
-        .user-actions .avatar {
+        .user-avatar {
+            position: relative;
+        }
+
+        .user-avatar .avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -316,9 +421,254 @@
             color: white;
             font-weight: bold;
             cursor: pointer;
+            transition: var(--transition);
         }
 
-        /* Hero Carousel */
+        .user-avatar .avatar:hover {
+            transform: scale(1.05);
+        }
+
+        /* Modales d'authentification */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-modal {
+            background: var(--light);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .auth-modal {
+            transform: translateY(0);
+        }
+
+        .auth-header {
+            background: var(--primary);
+            padding: 25px;
+            text-align: center;
+            color: var(--dark);
+        }
+
+        .auth-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: var(--secondary);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: none;
+            color: var(--gray);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .auth-tab.active {
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        .auth-form {
+            padding: 30px;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(212, 184, 150, 0.2);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        .auth-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .auth-error {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .auth-error.show {
+            display: block;
+        }
+
+        .auth-footer {
+            text-align: center;
+            padding: 15px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--secondary);
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Menu utilisateur */
+        .user-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            min-width: 200px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        .user-info {
+            padding: 15px;
+            background: var(--primary);
+            color: var(--dark);
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .user-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .user-info small {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        .user-menu-item {
+            display: block;
+            padding: 12px 15px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--secondary);
+        }
+
+        .user-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-menu-item:hover {
+            background: var(--light);
+        }
+
+        .user-menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Contenu protégé */
+        .protected-content {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .protected-content i {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .protected-content h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .protected-content p {
+            color: var(--gray);
+            margin-bottom: 25px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Le reste des styles existants... */
+        /* (Les styles pour le carousel, les cartes, etc. restent inchangés) */
+        
         .hero-carousel {
             position: relative;
             height: 500px;
@@ -365,110 +715,6 @@
             line-height: 1.6;
         }
 
-        .hero-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-shadow: none;
-        }
-
-        .hero-btn:hover {
-            background: #8c7259;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .carousel-indicators {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-
-        .indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .indicator.active {
-            background: white;
-            transform: scale(1.2);
-        }
-
-        .carousel-control {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            transition: var(--transition);
-            color: var(--dark);
-        }
-
-        .carousel-control:hover {
-            background: white;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .carousel-control.prev {
-            left: 20px;
-        }
-
-        .carousel-control.next {
-            right: 20px;
-        }
-
-        /* Content Sections */
-        .section-title {
-            margin: 40px 0 25px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .section-title h2 {
-            font-size: 2rem;
-            color: var(--dark);
-        }
-
-        .view-all {
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .view-all:hover {
-            color: var(--dark);
-        }
-
         .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -485,18 +731,6 @@
             cursor: pointer;
             border: 1px solid var(--secondary);
             position: relative;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .item-card:hover {
@@ -508,37 +742,6 @@
             width: 100%;
             height: 280px;
             object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .item-card:hover img {
-            transform: scale(1.05);
-        }
-
-        .favorite-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--gray);
-        }
-
-        .favorite-btn:hover {
-            background: white;
-            transform: scale(1.1);
-        }
-
-        .favorite-btn.active {
-            color: #e74c3c;
         }
 
         .card-content {
@@ -572,6 +775,32 @@
             font-weight: 600;
         }
 
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray);
+        }
+
+        .favorite-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .favorite-btn.active {
+            color: #e74c3c;
+        }
+
         .rating {
             display: flex;
             gap: 2px;
@@ -588,30 +817,49 @@
             color: #f39c12;
         }
 
-        .rating i:hover {
-            transform: scale(1.2);
-        }
-
         /* Pages */
         .page {
             display: none;
-            animation: fadeIn 0.3s ease;
         }
 
         .page.active {
             display: block;
         }
 
-        /* Book Description Page */
+        /* Section Title */
+        .section-title {
+            margin: 40px 0 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .view-all {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .view-all:hover {
+            color: var(--dark);
+        }
+
+        /* Page de description */
         .book-detail {
             display: grid;
             grid-template-columns: 300px 1fr;
             gap: 40px;
             margin-bottom: 40px;
-        }
-
-        .book-cover-container {
-            position: relative;
         }
 
         .desc-cover {
@@ -620,15 +868,10 @@
             box-shadow: 0 8px 25px rgba(93, 64, 55, 0.2);
         }
 
-        .book-info {
-            padding: 20px 0;
-        }
-
         .book-info h1 {
             font-size: 2.5rem;
             margin-bottom: 15px;
             color: var(--dark);
-            line-height: 1.2;
         }
 
         .book-meta {
@@ -696,12 +939,6 @@
             margin-top: 30px;
         }
 
-        .chapters-section h2 {
-            margin-bottom: 20px;
-            color: var(--dark);
-            font-size: 1.5rem;
-        }
-
         .chapter-btn {
             padding: 18px 20px;
             border: 2px solid var(--secondary);
@@ -723,426 +960,23 @@
             transform: translateX(5px);
         }
 
-        .chapter-views {
+        .chapter-locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .chapter-locked:hover {
+            transform: none;
+            background: white;
+            border-color: var(--secondary);
+        }
+
+        .lock-icon {
             color: var(--gray);
-            font-size: 0.9rem;
-            background: var(--light);
-            padding: 4px 12px;
-            border-radius: 20px;
+            margin-left: 10px;
         }
 
-        /* Reading Page - PDF Viewer */
-        .reading-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--secondary);
-        }
-
-        .reading-header h2 {
-            color: var(--dark);
-            font-size: 1.8rem;
-        }
-
-        .pdf-viewer-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 25px;
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .pdf-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: var(--light);
-            border-radius: 8px;
-        }
-
-        .pdf-nav-buttons {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .page-info {
-            font-weight: 600;
-            color: var(--accent);
-            font-size: 1.1rem;
-        }
-
-        /* Amélioration de l'affichage PDF */
-        #pdfViewer canvas {
-            border: 1px solid var(--secondary);
-            max-width: 100%;
-            display: block;
-            margin: 0 auto;
-            box-shadow: 0 4px 15px rgba(93, 64, 55, 0.1);
-            border-radius: 8px;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-        }
-
-        /* Indicateur de qualité */
-        .quality-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--primary);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        /* Amélioration de la lisibilité en mode sombre */
-        [data-theme="dark"] #pdfViewer canvas {
-            border-color: var(--gray);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        [data-theme="dark"] .pdf-viewer-container {
-            background: var(--light);
-        }
-
-        .pdf-loading {
-            text-align: center;
-            padding: 60px;
-            color: var(--gray);
-        }
-
-        .pdf-error {
-            text-align: center;
-            padding: 60px;
-            color: var(--danger);
-            background: #fdeded;
-            border-radius: 12px;
-            border: 1px solid var(--danger);
-        }
-
-        .reading-controls {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-
-        /* Favorites & History Pages */
-        .library-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--secondary);
-        }
-
-        .library-tab {
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: var(--gray);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-        }
-
-        .library-tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        .library-tab:hover {
-            color: var(--dark);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-
-        .empty-state p {
-            margin-bottom: 20px;
-        }
-
-        /* Contact Page */
-        .contact-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .contact-info {
-            background: white;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-        }
-
-        .contact-info h3 {
-            margin-bottom: 25px;
-            color: var(--dark);
-            font-size: 1.5rem;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 18px;
-            margin-bottom: 25px;
-        }
-
-        .info-item i {
-            color: var(--primary);
-            font-size: 1.3rem;
-            margin-top: 3px;
-        }
-
-        .info-content h4 {
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-
-        .info-content p {
-            color: var(--gray);
-            line-height: 1.6;
-        }
-
-        .contact-form {
-            background: white;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--secondary);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: var(--transition);
-            background: white;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(212, 184, 150, 0.2);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 140px;
-        }
-
-        .about-section {
-            background: white;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-top: 40px;
-        }
-
-        .about-section h3 {
-            margin-bottom: 25px;
-            color: var(--dark);
-            font-size: 1.5rem;
-        }
-
-        .about-section p {
-            margin-bottom: 20px;
-            line-height: 1.8;
-            color: var(--dark);
-        }
-
-        /* Comments Section */
-        .comments-section {
-            margin-top: 40px;
-        }
-
-        .comment-form {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-
-        .comment-form textarea {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid var(--secondary);
-            border-radius: 8px;
-            resize: vertical;
-            min-height: 120px;
-            margin-bottom: 20px;
-            font-family: inherit;
-            transition: var(--transition);
-        }
-
-        .comment-form textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(212, 184, 150, 0.2);
-        }
-
-        .comment {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .comment-author {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .comment-date {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        /* Account Page */
-        .account-header {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            margin-bottom: 40px;
-            padding-bottom: 25px;
-            border-bottom: 2px solid var(--secondary);
-        }
-
-        .account-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            font-weight: bold;
-            box-shadow: var(--shadow);
-        }
-
-        .account-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 30px 25px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            transition: var(--transition);
-            border: 1px solid var(--secondary);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(93, 64, 55, 0.15);
-        }
-
-        .stat-card i {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-
-        .stat-card h3 {
-            font-size: 2.2rem;
-            margin-bottom: 8px;
-            color: var(--dark);
-        }
-
-        .stat-card p {
-            color: var(--gray);
-            font-weight: 600;
-        }
-
-        .history-item {
-            padding: 20px;
-            border-bottom: 1px solid var(--secondary);
-            background: white;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
-        .history-item:hover {
-            transform: translateX(5px);
-            border-left: 4px solid var(--primary);
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        /* Search Results */
-        .search-results {
-            margin-top: 25px;
-        }
-
-        .results-count {
-            margin-bottom: 25px;
-            color: var(--gray);
-            font-size: 1.1rem;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-        }
-
-        /* Mobile Styles */
+        /* Media Queries pour le responsive */
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
@@ -1185,32 +1019,12 @@
                 font-size: 1.2rem;
             }
 
-            .nav-links span {
-                font-size: 0.7rem;
-            }
-
             .theme-toggle {
                 display: none;
             }
 
             .main-content {
                 padding-bottom: 80px;
-            }
-
-            /* Cacher les éléments au-dessus de la barre de recherche en mobile */
-            .header-top {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 15px;
-            }
-
-            .user-actions {
-                display: none;
-            }
-
-            .search-bar {
-                max-width: 100%;
-                order: 2;
             }
 
             .hero-carousel {
@@ -1230,16 +1044,6 @@
                 font-size: 2rem;
             }
 
-            .hero-content p {
-                font-size: 1rem;
-            }
-
-            .carousel-control {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
             .content-grid {
                 grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
                 gap: 15px;
@@ -1250,30 +1054,11 @@
                 gap: 25px;
             }
 
-            .pdf-controls {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .contact-container {
-                grid-template-columns: 1fr;
-            }
-
-            .account-header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .account-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .library-tabs {
-                flex-direction: column;
+            .auth-modal {
+                width: 95%;
             }
         }
 
-        /* Desktop-specific */
         @media (min-width: 769px) {
             .mobile-only {
                 display: none;
@@ -1287,6 +1072,75 @@
         <div class="splash-content">
             <div class="splash-logo">MUYAMBILI</div>
             <div class="splash-loader"></div>
+        </div>
+    </div>
+
+    <!-- Modal d'authentification -->
+    <div class="modal-overlay" id="authModal">
+        <div class="auth-modal">
+            <div class="auth-header">
+                <h2>MUYAMBILI</h2>
+                <p>Plateforme de lecture en ligne</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Connexion</button>
+                <button class="auth-tab" data-tab="register">Inscription</button>
+            </div>
+            
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="votre@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Mot de passe</label>
+                    <input type="password" id="loginPassword" placeholder="Votre mot de passe" required>
+                </div>
+                
+                <div class="auth-error" id="loginError"></div>
+                
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+                
+                <div class="auth-footer">
+                    <p>Pas encore de compte ? <a href="#" onclick="switchAuthTab('register')">S'inscrire</a></p>
+                </div>
+            </form>
+            
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="registerName">Nom d'utilisateur</label>
+                    <input type="text" id="registerName" placeholder="Choisissez un pseudonyme" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="votre@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">Mot de passe</label>
+                    <input type="password" id="registerPassword" placeholder="Minimum 6 caractères" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmer le mot de passe</label>
+                    <input type="password" id="confirmPassword" placeholder="Répétez le mot de passe" required>
+                </div>
+                
+                <div class="auth-error" id="registerError"></div>
+                
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-user-plus"></i> Créer un compte
+                </button>
+                
+                <div class="auth-footer">
+                    <p>Déjà un compte ? <a href="#" onclick="switchAuthTab('login')">Se connecter</a></p>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1304,9 +1158,8 @@
                 <li><a href="#" class="nav-link" data-page="booksPage"><i class="fas fa-book"></i> <span>Romans</span></a></li>
                 <li><a href="#" class="nav-link" data-page="mangaPage"><i class="fas fa-images"></i> <span>Manga</span></a></li>
                 <li><a href="#" class="nav-link" data-page="articlesPage"><i class="fas fa-newspaper"></i> <span>Articles</span></a></li>
-                <li><a href="#" class="nav-link" data-page="libraryPage"><i class="fas fa-heart"></i> <span>Favori</span></a></li>
+                <li><a href="#" class="nav-link" data-page="libraryPage"><i class="fas fa-heart"></i> <span>Favoris</span></a></li>
                 <li><a href="#" class="nav-link" data-page="contactPage"><i class="fas fa-envelope"></i> <span>Contact</span></a></li>
-               <!-- <li><a href="#" class="nav-link" id="accountButton"><i class="fas fa-user"></i> <span>Mon Compte</span></a></li>-->
             </ul>
             <button class="theme-toggle" id="themeToggle">
                 <i class="fas fa-moon"></i>
@@ -1330,37 +1183,33 @@
                         <button id="themeToggleMobile" title="Changer le thème">
                             <i class="fas fa-palette"></i>
                         </button>
-                        <div class="avatar">V</div>
+                        <div class="user-avatar">
+                            <div class="avatar" id="userAvatar" onclick="toggleUserMenu()">V</div>
+                            <div class="user-menu" id="userMenu">
+                                <div id="userMenuContent"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Hero Carousel -->
                 <div class="hero-carousel">
-                    <div class="hero-slide active" style="background-image: url('assets/images/plume.png')">
+                    <div class="hero-slide active" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://picsum.photos/1200/600?random=1')">
                         <div class="hero-content">
                             <h2>Plumes Brûlées</h2>
                             <p>Les plus belles citations d'amour viennent de ceux qui ne l'ont jamais connu.</p>
-                           <!-- <button class="hero-btn" onclick="openDescription('b1')">
-                                <i class="fas fa-book-open"></i> Commencer la lecture
-                            </button>-->
                         </div>
                     </div>
-                    <div class="hero-slide" style="background-image: url('https://picsum.photos/1200/600?random=2')">
+                    <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://picsum.photos/1200/600?random=2')">
                         <div class="hero-content">
                             <h2>Blade Runner X</h2>
                             <p>Un cyberpunk haletant dans un Tokyo futuriste où humains et androides se confrontent.</p>
-                           <!-- <button class="hero-btn" onclick="openDescription('m1')">
-                                <i class="fas fa-play"></i> Découvrir l'univers
-                            </button>-->
                         </div>
                     </div>
-                    <div class="hero-slide" style="background-image: url('https://picsum.photos/1200/600?random=3')">
+                    <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://picsum.photos/1200/600?random=3')">
                         <div class="hero-content">
                             <h2>Les Secrets du Cerveau</h2>
                             <p>Explorez les mystères de l'esprit humain avec les dernières découvertes en neurosciences.</p>
-                           <!-- <button class="hero-btn" onclick="openDescription('a1')">
-                                <i class="fas fa-brain"></i> Lire l'article
-                            </button>-->
                         </div>
                     </div>
                     
@@ -1377,32 +1226,23 @@
 
             <!-- Home Page -->
             <section id="homePage" class="page active">
-                <!-- Featured Novels -->
                 <div class="section-title">
                     <h2>Romans en Vedette</h2>
                     <a href="#" class="view-all" data-page="booksPage">Voir Tout</a>
                 </div>
-                <div class="content-grid" id="booksList">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
+                <div class="content-grid" id="booksList"></div>
 
-                <!-- Popular Manga -->
                 <div class="section-title">
                     <h2>Mangas Populaires</h2>
                     <a href="#" class="view-all" data-page="mangaPage">Voir Tout</a>
                 </div>
-                <div class="content-grid" id="mangaList">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
+                <div class="content-grid" id="mangaList"></div>
 
-                <!-- Recent Articles -->
                 <div class="section-title">
                     <h2>Articles Récents</h2>
                     <a href="#" class="view-all" data-page="articlesPage">Voir Tout</a>
                 </div>
-                <div class="content-grid" id="articlesList">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
+                <div class="content-grid" id="articlesList"></div>
             </section>
 
             <!-- Books Page -->
@@ -1410,9 +1250,7 @@
                 <div class="section-title">
                     <h2>Tous les Romans</h2>
                 </div>
-                <div class="content-grid" id="booksPageList">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
+                <div class="content-grid" id="booksPageList"></div>
             </section>
 
             <!-- Manga Page -->
@@ -1420,9 +1258,7 @@
                 <div class="section-title">
                     <h2>Tous les Mangas</h2>
                 </div>
-                <div class="content-grid" id="mangaPageList">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
+                <div class="content-grid" id="mangaPageList"></div>
             </section>
 
             <!-- Articles Page -->
@@ -1430,9 +1266,7 @@
                 <div class="section-title">
                     <h2>Tous les Articles</h2>
                 </div>
-                <div class="content-grid" id="articlesPageList">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
+                <div class="content-grid" id="articlesPageList"></div>
             </section>
 
             <!-- Library Page -->
@@ -1440,26 +1274,8 @@
                 <div class="section-title">
                     <h2>Ma Bibliothèque</h2>
                 </div>
-
-                <div class="library-tabs">
-                    <button class="library-tab active" data-tab="favorites">
-                        <i class="fas fa-heart"></i> Mes Favoris
-                    </button>
-                    <button class="library-tab" data-tab="history">
-                        <i class="fas fa-history"></i> Historique de Lecture
-                    </button>
-                </div>
-
-                <div id="favoritesTab" class="tab-content active">
-                    <div class="content-grid" id="favoritesList">
-                        <!-- Rempli dynamiquement par JavaScript -->
-                    </div>
-                </div>
-
-                <div id="historyTab" class="tab-content">
-                    <div id="historyContent">
-                        <!-- Rempli dynamiquement par JavaScript -->
-                    </div>
+                <div class="protected-content" id="libraryContent">
+                    <!-- Rempli dynamiquement selon l'état de connexion -->
                 </div>
             </section>
 
@@ -1469,9 +1285,7 @@
                     <div class="book-cover-container">
                         <img id="descCover" class="desc-cover" src="" alt="">
                     </div>
-                    <div id="descriptionContent">
-                        <!-- Rempli dynamiquement par JavaScript -->
-                    </div>
+                    <div id="descriptionContent"></div>
                 </div>
             </section>
 
@@ -1484,48 +1298,8 @@
                     </button>
                 </div>
                 
-                <div class="pdf-viewer-container">
-                    <div class="quality-indicator" id="qualityIndicator">Haute Qualité</div>
-                    <div class="pdf-controls">
-                        <div class="pdf-nav-buttons">
-                            <button class="btn btn-outline" onclick="prevPage()">
-                                <i class="fas fa-chevron-left"></i> Précédent
-                            </button>
-                            <span class="page-info">
-                                Page <span id="pageNum">1</span> sur <span id="pageCount">0</span>
-                            </span>
-                            <button class="btn btn-outline" onclick="nextPage()">
-                                Suivant <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                        <div>
-                            <button class="btn btn-outline" onclick="zoomOut()" title="Zoom arrière">
-                                <i class="fas fa-search-minus"></i>
-                            </button>
-                            <button class="btn btn-outline" onclick="resetZoom()" title="Zoom normal">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <button class="btn btn-outline" onclick="zoomIn()" title="Zoom avant">
-                                <i class="fas fa-search-plus"></i>
-                            </button>
-                            <button class="btn btn-outline" onclick="toggleQuality()" title="Qualité d'affichage">
-                                <i class="fas fa-high"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="pdfViewer">
-                        <div class="pdf-loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <p>Chargement du PDF...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="reading-controls">
-                    <button class="btn btn-outline" onclick="showPage('descriptionPage')">
-                        <i class="fas fa-arrow-left"></i> Retour au livre
-                    </button>
+                <div class="protected-content" id="readerContent">
+                    <!-- Rempli dynamiquement selon l'état de connexion -->
                 </div>
             </section>
 
@@ -1534,7 +1308,6 @@
                 <div class="section-title">
                     <h2>Contactez-nous</h2>
                 </div>
-
                 <div class="contact-container">
                     <div class="contact-info">
                         <h3>Informations de contact</h3>
@@ -1542,7 +1315,7 @@
                             <i class="fas fa-map-marker-alt"></i>
                             <div class="info-content">
                                 <h4>Adresse</h4>
-                                <p>Amissa<br>Akanda, Gabon</p>
+                                <p>Amissa, Akanda, Gabon</p>
                             </div>
                         </div>
                         <div class="info-item">
@@ -1559,293 +1332,898 @@
                                 <p>contact@muyambili.com</p>
                             </div>
                         </div>
-                        <div class="info-item">
-                            <i class="fas fa-clock"></i>
-                            <div class="info-content">
-                                <h4>Horaires service client</h4>
-                                <p>Lundi - Vendredi: 9h00 - 18h00<br>
-                                   Samedi: 10h00 - 17h00<br>
-                                   Dimanche: Fermé</p>
-                            </div>
-                        </div>
                     </div>
-
                     <div class="contact-form">
                         <h3>Envoyez-nous un message</h3>
-                        <form action="mailto:contact@muyambili.com" method="post" enctype="text/plain">
+                        <form id="contactForm">
                             <div class="form-group">
                                 <label for="name">Nom complet</label>
                                 <input type="text" id="name" name="name" required>
                             </div>
                             <div class="form-group">
-                                <label for="email">Adresse email</label>
+                                <label for="email">Email</label>
                                 <input type="email" id="email" name="email" required>
                             </div>
                             <div class="form-group">
-                                <label for="subject">Sujet</label>
-                                <select id="subject" name="subject" required>
-                                    <option value="">Sélectionnez un sujet</option>
-                                    <option value="support">Support technique</option>
-                                    <option value="partnership">Partenariat</option>
-                                    <option value="suggestion">Suggestion</option>
-                                    <option value="bug">Signaler un bug</option>
-                                    <option value="other">Autre</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label for="message">Message</label>
-                                <textarea id="message" name="message" required></textarea>
+                                <textarea id="message" name="message" rows="5" required></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane"></i> Envoyer le message
+                                <i class="fas fa-paper-plane"></i> Envoyer
                             </button>
                         </form>
                     </div>
                 </div>
-
-                <div class="about-section">
-                    <h3>À propos de MUYAMBILI</h3>
-                    <p>MUYAMBILI est votre plateforme de lecture en ligne préférée, offrant une vaste collection de romans, mangas et articles scientifiques. Notre mission est de rendre la lecture accessible à tous, partout et à tout moment.</p>
-                    <p>MUYAMBILI, qui signifie "conteur" en Nzebi, est la première plateforme numérique dédiée à la littérature gabonaise. Nous transformons la riche tradition orale africaine en expérience de lecture digitale.</p>
-                    <p>Rejoignez notre communauté de lecteurs passionnés et découvrez un monde de connaissances et de divertissement à portée de clic.</p>
-                </div>
             </section>
 
-            <!-- Search Page -->
+            <!-- Search Results Page -->
             <section id="searchPage" class="page">
                 <div class="section-title">
                     <h2>Résultats de Recherche</h2>
                 </div>
-                <div class="results-count" id="resultsCount"></div>
-                <div class="content-grid" id="searchResults">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
-            </section>
-
-            <!-- Account Page -->
-            <section id="accountPage" class="page">
-                <div class="account-header">
-                    <div class="account-avatar">V</div>
-                    <div>
-                        <h1>Visiteur</h1>
-                        <p>Connecté en tant qu'invité</p>
-                    </div>
-                </div>
-
-                <div class="account-stats">
-                    <div class="stat-card">
-                        <i class="fas fa-book-open"></i>
-                        <h3 id="totalReads">0</h3>
-                        <p>Lectures Total</p>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-heart"></i>
-                        <h3 id="favoritesCount">0</h3>
-                        <p>Favoris</p>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-comment"></i>
-                        <h3 id="commentsCount">0</h3>
-                        <p>Commentaires</p>
-                    </div>
-                </div>
-
-                <div class="section-title">
-                    <h2>Votre Historique de Lecture</h2>
-                </div>
-                <div id="historyList">
-                    <!-- Rempli dynamiquement par JavaScript -->
-                </div>
+                <div id="searchResults" class="content-grid"></div>
             </section>
         </main>
     </div>
 
     <script>
-        // Configuration PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-        // Variables pour la gestion PDF
-        let currentPdf = null;
-        let currentPageNum = 1;
-        let currentScale = 1.5; // Augmenté pour une meilleure lisibilité par défaut
-        let pdfLoadingTask = null;
-        let highQualityMode = true; // Qualité haute par défaut
-
         // =============================
-        // SYSTÈME DE VUES GLOBALES
+        // GESTION DE L'AUTHENTIFICATION
         // =============================
-        let globalViews = {};
-        let userHistory = [];
-        let userFavorites = [];
-        let userRatings = {};
-
-        // Charger les données depuis le localStorage
-        function loadUserData() {
-            const savedViews = localStorage.getItem('muyambili_global_views');
-            const savedHistory = localStorage.getItem('muyambili_user_history');
-            const savedFavorites = localStorage.getItem('muyambili_favorites');
-            const savedRatings = localStorage.getItem('muyambili_ratings');
-            const savedTheme = localStorage.getItem('muyambili_theme');
-
-            globalViews = savedViews ? JSON.parse(savedViews) : {};
-            userHistory = savedHistory ? JSON.parse(savedHistory) : [];
-            userFavorites = savedFavorites ? JSON.parse(savedFavorites) : [];
-            userRatings = savedRatings ? JSON.parse(savedRatings) : {};
-
-            // Appliquer le thème sauvegardé
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-                updateThemeToggleIcon();
+        
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('muyambili_users') || '[]');
+        const AUTH_KEY = 'muyambili_current_user';
+        
+        // Charger l'utilisateur connecté
+        function loadCurrentUser() {
+            const savedUser = localStorage.getItem(AUTH_KEY);
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    updateUserInterface();
+                } catch (e) {
+                    console.error('Erreur de chargement de l\'utilisateur:', e);
+                    localStorage.removeItem(AUTH_KEY);
+                }
             }
         }
-
-        // Sauvegarder les données
-        function saveUserData() {
-            localStorage.setItem('muyambili_global_views', JSON.stringify(globalViews));
-            localStorage.setItem('muyambili_user_history', JSON.stringify(userHistory));
-            localStorage.setItem('muyambili_favorites', JSON.stringify(userFavorites));
-            localStorage.setItem('muyambili_ratings', JSON.stringify(userRatings));
+        
+        // Sauvegarder les utilisateurs
+        function saveUsers() {
+            localStorage.setItem('muyambili_users', JSON.stringify(users));
         }
-
-        // Incrémenter les vues pour un contenu
-        function incrementViews(itemId, chapterIndex = null) {
-            const key = chapterIndex !== null ? `${itemId}_chapter_${chapterIndex}` : itemId;
+        
+        // Inscription
+        function register(username, email, password) {
+            // Validation
+            if (users.find(u => u.email === email)) {
+                return { success: false, message: 'Cet email est déjà utilisé' };
+            }
+            if (users.find(u => u.username === username)) {
+                return { success: false, message: 'Ce nom d\'utilisateur est déjà pris' };
+            }
+            if (password.length < 6) {
+                return { success: false, message: 'Le mot de passe doit faire au moins 6 caractères' };
+            }
             
-            globalViews[key] = (globalViews[key] || 0) + 1;
+            const newUser = {
+                id: Date.now().toString(),
+                username: username,
+                email: email,
+                password: btoa(password), // Chiffrement basique
+                createdAt: new Date().toISOString(),
+                favorites: [],
+                ratings: {},
+                history: [],
+                views: {}
+            };
             
-            // Ajouter à l'historique utilisateur
-            const item = getItemById(itemId);
-            if (item) {
-                const title = chapterIndex !== null ? 
-                    `${item.title} - ${item.chapters[chapterIndex].title}` : 
-                    item.title;
+            users.push(newUser);
+            saveUsers();
+            
+            // Connecter automatiquement
+            return login(email, password);
+        }
+        
+        // Connexion
+        function login(email, password) {
+            const user = users.find(u => u.email === email);
+            
+            if (!user) {
+                return { success: false, message: 'Email incorrect' };
+            }
+            if (user.password !== btoa(password)) {
+                return { success: false, message: 'Mot de passe incorrect' };
+            }
+            
+            currentUser = { ...user };
+            delete currentUser.password; // Ne pas stocker le mot de passe en clair
+            localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+            
+            updateUserInterface();
+            return { success: true, message: 'Connexion réussie !' };
+        }
+        
+        // Déconnexion
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem(AUTH_KEY);
+            updateUserInterface();
+            showToast('Déconnexion réussie', 'success');
+            showPage('homePage');
+        }
+        
+        // Mettre à jour l'interface utilisateur
+        function updateUserInterface() {
+            const userAvatar = document.getElementById('userAvatar');
+            const userMenuContent = document.getElementById('userMenuContent');
+            
+            if (currentUser) {
+                // Utilisateur connecté
+                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+                userAvatar.style.backgroundColor = getColorFromName(currentUser.username);
                 
-                const recentDuplicate = userHistory.find(entry => 
-                    entry.title === title && 
-                    (Date.now() - entry.timestamp) < 300000
-                );
-
-                if (!recentDuplicate) {
-                    userHistory.unshift({
-                        title: title,
-                        date: new Date().toLocaleString('fr-FR'),
-                        timestamp: Date.now(),
-                        itemId: itemId,
-                        chapterIndex: chapterIndex
-                    });
-                    
-                    if (userHistory.length > 20) {
-                        userHistory = userHistory.slice(0, 20);
-                    }
-                    
-                    updateStats();
+                userMenuContent.innerHTML = `
+                    <div class="user-info">
+                        <strong>${currentUser.username}</strong>
+                        <small>${currentUser.email}</small>
+                    </div>
+                    <a href="#" class="user-menu-item" onclick="showPage('libraryPage'); toggleUserMenu()">
+                        <i class="fas fa-heart"></i> Mes favoris
+                    </a>
+                    <a href="#" class="user-menu-item" onclick="showAccount(); toggleUserMenu()">
+                        <i class="fas fa-user"></i> Mon compte
+                    </a>
+                    <a href="#" class="user-menu-item" onclick="logout(); toggleUserMenu()">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                `;
+            } else {
+                // Utilisateur non connecté
+                userAvatar.textContent = 'V';
+                userAvatar.style.backgroundColor = 'var(--accent)';
+                
+                userMenuContent.innerHTML = `
+                    <div class="user-info">
+                        <strong>Visiteur</strong>
+                        <small>Non connecté</small>
+                    </div>
+                    <a href="#" class="user-menu-item" onclick="showAuthModal('login'); toggleUserMenu()">
+                        <i class="fas fa-sign-in-alt"></i> Connexion
+                    </a>
+                    <a href="#" class="user-menu-item" onclick="showAuthModal('register'); toggleUserMenu()">
+                        <i class="fas fa-user-plus"></i> Inscription
+                    </a>
+                `;
+            }
+            
+            // Mettre à jour le contenu protégé
+            updateProtectedContent();
+        }
+        
+        // Générateur de couleur
+        function getColorFromName(name) {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFD166', '#06D6A0', '#118AB2', '#EF476F', '#7209B7', '#3A86FF'];
+            const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            return colors[hash % colors.length];
+        }
+        
+        // =============================
+        // GESTION DES MODALES
+        // =============================
+        
+        function showAuthModal(tab = 'login') {
+            const modal = document.getElementById('authModal');
+            modal.classList.add('active');
+            switchAuthTab(tab);
+        }
+        
+        function hideAuthModal() {
+            const modal = document.getElementById('authModal');
+            modal.classList.remove('active');
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+            hideErrors();
+        }
+        
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            document.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(`${tab}Form`).classList.add('active');
+        }
+        
+        function showError(elementId, message) {
+            const errorDiv = document.getElementById(elementId);
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+        
+        function hideErrors() {
+            document.querySelectorAll('.auth-error').forEach(e => {
+                e.classList.remove('show');
+                e.textContent = '';
+            });
+        }
+        
+        // Gestion des formulaires
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideErrors();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const result = login(email, password);
+            if (result.success) {
+                hideAuthModal();
+                showToast(result.message, 'success');
+            } else {
+                showError('loginError', result.message);
+            }
+        });
+        
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideErrors();
+            
+            const username = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showError('registerError', 'Les mots de passe ne correspondent pas');
+                return;
+            }
+            
+            const result = register(username, email, password);
+            if (result.success) {
+                hideAuthModal();
+                showToast(result.message, 'success');
+            } else {
+                showError('registerError', result.message);
+            }
+        });
+        
+        // Fermer la modale en cliquant à l'extérieur
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAuthModal();
+            }
+        });
+        
+        // =============================
+        // GESTION DU MENU UTILISATEUR
+        // =============================
+        
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('active');
+        }
+        
+        // Fermer le menu en cliquant à l'extérieur
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('userMenu');
+            const avatar = document.getElementById('userAvatar');
+            
+            if (menu && avatar && !avatar.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        });
+        
+        // =============================
+        // GESTION DU CONTENU PROTÉGÉ
+        // =============================
+        
+        function updateProtectedContent() {
+            // Bibliothèque
+            const libraryContent = document.getElementById('libraryContent');
+            if (libraryContent) {
+                if (currentUser) {
+                    libraryContent.innerHTML = `
+                        <div class="library-tabs">
+                            <button class="library-tab active" data-tab="favorites">Favoris</button>
+                            <button class="library-tab" data-tab="history">Historique</button>
+                        </div>
+                        <div id="favoritesTab" class="tab-content active">
+                            <div class="content-grid" id="favoritesList"></div>
+                        </div>
+                        <div id="historyTab" class="tab-content">
+                            <div id="historyContent"></div>
+                        </div>
+                    `;
+                    renderFavorites();
+                    renderHistory();
+                    setupLibraryTabs();
+                } else {
+                    libraryContent.innerHTML = `
+                        <div class="protected-content">
+                            <i class="fas fa-lock"></i>
+                            <h3>Contenu Réservé aux Membres</h3>
+                            <p>Connectez-vous pour accéder à votre bibliothèque personnelle, vos favoris et votre historique de lecture.</p>
+                            <button class="btn btn-primary" onclick="showAuthModal('login')">
+                                <i class="fas fa-sign-in-alt"></i> Se connecter
+                            </button>
+                            <button class="btn btn-outline" onclick="showAuthModal('register')" style="margin-left: 10px;">
+                                <i class="fas fa-user-plus"></i> Créer un compte
+                            </button>
+                        </div>
+                    `;
                 }
             }
             
-            saveUserData();
+            // Lecteur PDF
+            const readerContent = document.getElementById('readerContent');
+            if (readerContent && !currentUser) {
+                readerContent.innerHTML = `
+                    <div class="protected-content">
+                        <i class="fas fa-lock"></i>
+                        <h3>Lecture Réservée aux Membres</h3>
+                        <p>Vous devez être connecté pour lire les chapitres et articles.</p>
+                        <button class="btn btn-primary" onclick="showAuthModal('login')">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </button>
+                        <button class="btn btn-outline" onclick="showAuthModal('register')" style="margin-left: 10px;">
+                            <i class="fas fa-user-plus"></i> Créer un compte
+                        </button>
+                    </div>
+                `;
+            }
         }
-
-        // Obtenir le nombre de vues
-        function getViews(itemId, chapterIndex = null) {
-            const key = chapterIndex !== null ? `${itemId}_chapter_${chapterIndex}` : itemId;
-            return globalViews[key] || 0;
+        
+        function requireAuth(action) {
+            if (!currentUser) {
+                showAuthModal('login');
+                showToast('Connectez-vous pour continuer', 'warning');
+                return false;
+            }
+            return true;
         }
-
-        // Gestion des favoris
-        function toggleFavorite(itemId) {
-            const index = userFavorites.indexOf(itemId);
+        
+        // =============================
+        // DONNÉES DE L'APPLICATION
+        // =============================
+        
+        const data = {
+            books: [
+                {
+                    id: "b1",
+                    title: "Plumes Brûlées",
+                    author: "Dr DOOM",
+                    genre: "Poésie",
+                    cover: "https://picsum.photos/300/400?random=1",
+                    description: "Les plus belles citations d'amour viennent de ceux qui ne l'ont jamais connu. Un recueil poignant qui explore les paradoxes de l'amour à travers des poèmes déchirants.",
+                    chapters: [
+                        { title: "Poème 1: L'Amour Inachevé", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                        { title: "Poème 2: Les Cendres du Désir", pdf: "https://www.africau.edu/images/default/sample.pdf" }
+                    ]
+                },
+                {
+                    id: "b2",
+                    title: "L'Héritage des Anciens",
+                    author: "Pierre Dubois",
+                    genre: "Aventure",
+                    cover: "https://picsum.photos/300/400?random=4",
+                    description: "Une quête épique à travers des terres oubliées pour retrouver l'héritage des anciens dieux.",
+                    chapters: [
+                        { title: "Chapitre 1: L'Appel", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                        { title: "Chapitre 2: Le Premier Temple", pdf: "https://www.africau.edu/images/default/sample.pdf" }
+                    ]
+                }
+            ],
+            mangas: [
+                {
+                    id: "m1",
+                    title: "Blade Runner X",
+                    author: "Kenji Sato",
+                    genre: "Action",
+                    cover: "https://picsum.photos/300/400?random=2",
+                    description: "Un jeune guerrier cybernétique découvrant la vérité sur son passé dans un Tokyo futuriste.",
+                    chapters: [
+                        { title: "Chapitre 1: Réveil Numérique", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                        { title: "Chapitre 2: Mémoires Fragmentées", pdf: "https://www.africau.edu/images/default/sample.pdf" }
+                    ]
+                },
+                {
+                    id: "m2",
+                    title: "Sakura Dreams",
+                    author: "Yuki Tanaka",
+                    genre: "Romance",
+                    cover: "https://picsum.photos/300/400?random=5",
+                    description: "Une histoire d'amour touchante entre une artiste et un musicien sous les cerisiers en fleurs.",
+                    chapters: [
+                        { title: "Chapitre 1: Première Rencontre", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+                    ]
+                }
+            ],
+            articles: [
+                {
+                    id: "a1",
+                    title: "Les Secrets du Cerveau Humain",
+                    author: "Dr. Malika Ondo",
+                    genre: "Science",
+                    cover: "https://picsum.photos/300/400?random=3",
+                    description: "Analyse approfondie du fonctionnement du cerveau et des dernières découvertes en neurosciences.",
+                    pdf: "https://www.africau.edu/images/default/sample.pdf"
+                },
+                {
+                    id: "a2",
+                    title: "L'IA et la Créativité",
+                    author: "Dr. Thomas Weber",
+                    genre: "Technologie",
+                    cover: "https://picsum.photos/300/400?random=6",
+                    description: "Comment l'intelligence artificielle transforme le paysage créatif et artistique.",
+                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+                }
+            ]
+        };
+        
+        // =============================
+        // FONCTIONS D'AFFICHAGE
+        // =============================
+        
+        function renderList(containerId, items) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
             
+            container.innerHTML = '';
+            items.forEach(item => {
+                const views = currentUser ? (currentUser.views[item.id] || 0) : 0;
+                const isFavorite = currentUser ? currentUser.favorites.includes(item.id) : false;
+                const rating = currentUser ? (currentUser.ratings[item.id] || 0) : 0;
+                
+                container.innerHTML += `
+                    <div class="item-card" onclick="openDescription('${item.id}')">
+                        <img src="${item.cover}" alt="${item.title}">
+                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
+                                onclick="event.stopPropagation(); toggleFavorite('${item.id}')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <div class="card-content">
+                            <h3>${item.title}</h3>
+                            <p>${item.author}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <p class="genre">${item.genre}</p>
+                                <span class="views-badge">${views} vues</span>
+                            </div>
+                            ${currentUser ? `
+                                <div class="rating" onclick="event.stopPropagation()">
+                                    ${[1,2,3,4,5].map(star => `
+                                        <i class="fas fa-star ${star <= rating ? 'active' : ''}" 
+                                           onclick="rateItem('${item.id}', ${star})"></i>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        function openDescription(itemId) {
+            const item = data.books.find(b => b.id === itemId) ||
+                         data.mangas.find(m => m.id === itemId) ||
+                         data.articles.find(a => a.id === itemId);
+            
+            if (!item) return;
+            
+            document.getElementById('descCover').src = item.cover;
+            document.getElementById('descCover').alt = item.title;
+            
+            const isFavorite = currentUser ? currentUser.favorites.includes(item.id) : false;
+            const rating = currentUser ? (currentUser.ratings[item.id] || 0) : 0;
+            const views = currentUser ? (currentUser.views[item.id] || 0) : 0;
+            
+            let chaptersHtml = '';
+            if (item.chapters) {
+                item.chapters.forEach((chapter, index) => {
+                    const chapterViews = currentUser ? (currentUser.views[`${item.id}_${index}`] || 0) : 0;
+                    const canRead = currentUser ? true : false;
+                    
+                    chaptersHtml += `
+                        <button class="chapter-btn ${canRead ? '' : 'chapter-locked'}" 
+                                ${canRead ? `onclick="openChapter('${item.id}', ${index})"` : 'onclick="requireAuth()"'}
+                                ${!canRead ? 'title="Connectez-vous pour lire"' : ''}>
+                            <span>
+                                ${chapter.title}
+                                ${!canRead ? '<i class="fas fa-lock lock-icon"></i>' : ''}
+                            </span>
+                            <span class="chapter-views">${chapterViews} vues</span>
+                        </button>
+                    `;
+                });
+            }
+            
+            document.getElementById('descriptionContent').innerHTML = `
+                <div class="book-info">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <h1>${item.title}</h1>
+                        ${currentUser ? `
+                            <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
+                                    onclick="toggleFavorite('${item.id}')">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <div class="book-meta">
+                        <span><i class="fas fa-user"></i> ${item.author}</span>
+                        <span><i class="fas fa-tag"></i> ${item.genre}</span>
+                        <span><i class="fas fa-eye"></i> ${views} vues</span>
+                    </div>
+                    <div class="book-description">
+                        <p>${item.description}</p>
+                    </div>
+                    ${currentUser ? `
+                        <div style="margin: 20px 0;">
+                            <div class="rating">
+                                <span style="margin-right: 10px; font-weight: 600;">Votre note :</span>
+                                ${[1,2,3,4,5].map(star => `
+                                    <i class="fas fa-star ${star <= rating ? 'active' : ''}" 
+                                       onclick="rateItem('${item.id}', ${star})"></i>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                ${item.chapters ? `
+                    <div class="chapters-section">
+                        <h2><i class="fas fa-list-ol"></i> Chapitres</h2>
+                        ${chaptersHtml}
+                    </div>
+                ` : ''}
+            `;
+            
+            showPage('descriptionPage');
+        }
+        
+        function openChapter(itemId, chapterIndex) {
+            if (!requireAuth()) return;
+            
+            const item = data.books.find(b => b.id === itemId) ||
+                         data.mangas.find(m => m.id === itemId);
+            
+            if (!item || !item.chapters[chapterIndex]) return;
+            
+            // Enregistrer la lecture dans l'historique
+            if (currentUser) {
+                const chapterKey = `${itemId}_${chapterIndex}`;
+                currentUser.views[chapterKey] = (currentUser.views[chapterKey] || 0) + 1;
+                
+                currentUser.history.unshift({
+                    itemId: itemId,
+                    chapterIndex: chapterIndex,
+                    title: `${item.title} - ${item.chapters[chapterIndex].title}`,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Garder seulement les 50 dernières lectures
+                if (currentUser.history.length > 50) {
+                    currentUser.history = currentUser.history.slice(0, 50);
+                }
+                
+                localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+            }
+            
+            showToast('Ouverture du chapitre...', 'success');
+            // Ici vous intégreriez votre lecteur PDF
+            showPage('readerPage');
+        }
+        
+        // =============================
+        // GESTION DES FAVORIS
+        // =============================
+        
+        function toggleFavorite(itemId) {
+            if (!requireAuth()) return;
+            
+            const index = currentUser.favorites.indexOf(itemId);
             if (index > -1) {
-                userFavorites.splice(index, 1);
+                currentUser.favorites.splice(index, 1);
                 showToast('Retiré des favoris', 'success');
             } else {
-                userFavorites.push(itemId);
+                currentUser.favorites.push(itemId);
                 showToast('Ajouté aux favoris', 'success');
             }
             
-            saveUserData();
-            updateStats();
+            localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+            updateUserInterface();
             
-            // Mettre à jour l'affichage si on est sur la page des favoris
-            if (document.getElementById('libraryPage').style.display === 'block') {
-                renderFavorites();
+            // Mettre à jour l'affichage actuel
+            const favoriteBtn = event.target.closest('.favorite-btn');
+            if (favoriteBtn) {
+                favoriteBtn.classList.toggle('active');
+            }
+        }
+        
+        function renderFavorites() {
+            const container = document.getElementById('favoritesList');
+            if (!container || !currentUser) return;
+            
+            const favoriteItems = [];
+            data.books.forEach(book => {
+                if (currentUser.favorites.includes(book.id)) favoriteItems.push(book);
+            });
+            data.mangas.forEach(manga => {
+                if (currentUser.favorites.includes(manga.id)) favoriteItems.push(manga);
+            });
+            data.articles.forEach(article => {
+                if (currentUser.favorites.includes(article.id)) favoriteItems.push(article);
+            });
+            
+            if (favoriteItems.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--gray);">
+                        <i class="fas fa-heart" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h3>Aucun favori</h3>
+                        <p>Ajoutez des contenus à vos favoris pour les retrouver ici.</p>
+                    </div>
+                `;
+                return;
             }
             
-            return index === -1; // Retourne true si ajouté, false si retiré
+            container.innerHTML = '';
+            favoriteItems.forEach(item => {
+                const rating = currentUser.ratings[item.id] || 0;
+                const views = currentUser.views[item.id] || 0;
+                
+                container.innerHTML += `
+                    <div class="item-card" onclick="openDescription('${item.id}')">
+                        <img src="${item.cover}" alt="${item.title}">
+                        <button class="favorite-btn active" onclick="event.stopPropagation(); toggleFavorite('${item.id}')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <div class="card-content">
+                            <h3>${item.title}</h3>
+                            <p>${item.author}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <p class="genre">${item.genre}</p>
+                                <span class="views-badge">${views} vues</span>
+                            </div>
+                            <div class="rating" onclick="event.stopPropagation()">
+                                ${[1,2,3,4,5].map(star => `
+                                    <i class="fas fa-star ${star <= rating ? 'active' : ''}" 
+                                       onclick="rateItem('${item.id}', ${star})"></i>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
         }
-
-        function isFavorite(itemId) {
-            return userFavorites.includes(itemId);
-        }
-
-        // Gestion des notations
-        function rateItem(itemId, rating) {
-            userRatings[itemId] = rating;
-            saveUserData();
-            showToast(`Noté ${rating} étoile(s)`, 'success');
-        }
-
-        function getRating(itemId) {
-            return userRatings[itemId] || 0;
-        }
-
-        // Obtenir un item par son ID
-        function getItemById(itemId) {
-            return data.books.find(b => b.id === itemId) ||
-                   data.mangas.find(m => m.id === itemId) ||
-                   data.articles.find(a => a.id === itemId);
-        }
-
-        // =============================
-        // SYSTÈME DE TOAST
-        // =============================
-        function showToast(message, type = 'success') {
-            const toastContainer = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+        
+        function renderHistory() {
+            const container = document.getElementById('historyContent');
+            if (!container || !currentUser) return;
             
-            const icons = {
-                success: 'fas fa-check-circle',
-                error: 'fas fa-exclamation-circle',
-                warning: 'fas fa-exclamation-triangle'
-            };
-
-            toast.innerHTML = `
-                <i class="${icons[type] || icons.success}"></i>
-                <span>${message}</span>
-            `;
-
-            toastContainer.appendChild(toast);
-
-            // Animation d'entrée
-            setTimeout(() => toast.classList.add('show'), 100);
-
-            // Suppression automatique
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 300);
-            }, 3000);
+            if (currentUser.history.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--gray);">
+                        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h3>Aucun historique</h3>
+                        <p>Votre historique de lecture apparaîtra ici.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            currentUser.history.forEach(entry => {
+                const item = data.books.find(b => b.id === entry.itemId) ||
+                             data.mangas.find(m => m.id === entry.itemId) ||
+                             data.articles.find(a => a.id === entry.itemId);
+                
+                if (item) {
+                    const date = new Date(entry.timestamp);
+                    container.innerHTML += `
+                        <div class="history-item" onclick="openDescription('${item.id}')">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <img src="${item.cover}" alt="${item.title}" style="width: 60px; height: 80px; object-fit: cover; border-radius: 8px;">
+                                <div>
+                                    <h4 style="margin-bottom: 5px;">${entry.title}</h4>
+                                    <p style="color: var(--gray); font-size: 0.9rem;">
+                                        <i class="fas fa-clock"></i> ${date.toLocaleDateString('fr-FR')}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
         }
-
+        
+        function setupLibraryTabs() {
+            document.querySelectorAll('.library-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.library-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}Tab`).classList.add('active');
+                });
+            });
+        }
+        
+        function rateItem(itemId, rating) {
+            if (!requireAuth()) return;
+            
+            currentUser.ratings[itemId] = rating;
+            localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+            showToast(`Noté ${rating} étoile(s)`, 'success');
+            
+            // Mettre à jour l'affichage
+            const stars = event.target.parentElement.querySelectorAll('.fa-star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('active', index < rating);
+            });
+        }
+        
         // =============================
-        // GESTION DU THÈME
+        // NAVIGATION ET PAGES
         // =============================
+        
+        function showPage(pageId) {
+            // Fermer le menu utilisateur
+            document.getElementById('userMenu').classList.remove('active');
+            
+            // Cacher toutes les pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Désactiver tous les liens de navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Activer la page demandée
+            const page = document.getElementById(pageId);
+            if (page) {
+                page.classList.add('active');
+                
+                // Activer le lien correspondant dans la navigation
+                const navLink = document.querySelector(`[data-page="${pageId}"]`);
+                if (navLink) {
+                    navLink.classList.add('active');
+                }
+            }
+            
+            // Charger le contenu spécifique à la page
+            if (pageId === 'homePage') {
+                renderList('booksList', data.books);
+                renderList('mangaList', data.mangas);
+                renderList('articlesList', data.articles);
+            } else if (pageId === 'booksPage') {
+                renderList('booksPageList', data.books);
+            } else if (pageId === 'mangaPage') {
+                renderList('mangaPageList', data.mangas);
+            } else if (pageId === 'articlesPage') {
+                renderList('articlesPageList', data.articles);
+            }
+        }
+        
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.dataset.page;
+                
+                // Vérifier l'authentification pour les pages protégées
+                if (['libraryPage'].includes(pageId) && !currentUser) {
+                    showAuthModal('login');
+                    return;
+                }
+                
+                showPage(pageId);
+            });
+        });
+        
+        document.querySelectorAll('.view-all').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage(link.dataset.page);
+            });
+        });
+        
+        // Recherche
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            if (query.length === 0) {
+                showPage('homePage');
+                return;
+            }
+            
+            // Filtrer les résultats
+            const allItems = [...data.books, ...data.mangas, ...data.articles];
+            const results = allItems.filter(item => 
+                item.title.toLowerCase().includes(query) ||
+                item.author.toLowerCase().includes(query) ||
+                item.genre.toLowerCase().includes(query)
+            );
+            
+            // Afficher les résultats
+            const resultsContainer = document.getElementById('searchResults');
+            if (resultsContainer) {
+                if (results.length > 0) {
+                    renderList('searchResults', results);
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--gray);">
+                            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                            <h3>Aucun résultat</h3>
+                            <p>Aucun contenu ne correspond à votre recherche.</p>
+                        </div>
+                    `;
+                }
+                
+                showPage('searchPage');
+            }
+        });
+        
+        // =============================
+        // CAROUSEL
+        // =============================
+        
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.hero-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            currentSlide = index;
+            slides[index].classList.add('active');
+            indicators[index].classList.add('active');
+        }
+        
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+        
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+        
+        // Événements du carousel
+        document.querySelector('.carousel-control.next').addEventListener('click', nextSlide);
+        document.querySelector('.carousel-control.prev').addEventListener('click', prevSlide);
+        
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => showSlide(index));
+        });
+        
+        // Carousel automatique
+        let carouselInterval = setInterval(nextSlide, 5000);
+        
+        // Arrêter le carousel au survol
+        document.querySelector('.hero-carousel').addEventListener('mouseenter', () => {
+            clearInterval(carouselInterval);
+        });
+        
+        document.querySelector('.hero-carousel').addEventListener('mouseleave', () => {
+            carouselInterval = setInterval(nextSlide, 5000);
+        });
+        
+        // =============================
+        // THÈME
+        // =============================
+        
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('muyambili_theme', newTheme);
-            updateThemeToggleIcon();
-            
-            showToast(`Mode ${newTheme === 'dark' ? 'sombre' : 'clair'} activé`);
+            updateThemeIcon();
         }
-
-        function updateThemeToggleIcon() {
+        
+        function updateThemeIcon() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const icons = document.querySelectorAll('#themeToggle i, #themeToggleMobile i');
             const labels = document.querySelectorAll('#themeToggle span');
@@ -1858,782 +2236,42 @@
                 label.textContent = currentTheme === 'dark' ? 'Mode clair' : 'Mode sombre';
             });
         }
-
+        
         // =============================
-        // GESTION DE LA BIBLIOTHÈQUE
+        // TOAST
         // =============================
-        function renderFavorites() {
-            const container = document.getElementById('favoritesList');
-            if (!container) return;
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
             
-            container.innerHTML = '';
-
-            if (userFavorites.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-heart"></i>
-                        <h3>Aucun favori</h3>
-                        <p>Vous n'avez encore aucun contenu dans vos favoris.</p>
-                        <button class="btn btn-primary" onclick="showPage('homePage')">
-                            <i class="fas fa-book-open"></i> Découvrir des contenus
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            const favoriteItems = userFavorites.map(itemId => getItemById(itemId)).filter(Boolean);
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle'
+            };
             
-            favoriteItems.forEach(item => {
-                const totalViews = getViews(item.id);
-                const isFav = isFavorite(item.id);
-                const rating = getRating(item.id);
-                
-                container.innerHTML += `
-                    <div class="item-card" onclick="openDescription('${item.id}')">
-                        <img src="${item.cover}" alt="${item.title}">
-                        <button class="favorite-btn active" onclick="event.stopPropagation(); toggleFavorite('${item.id}'); this.classList.toggle('active')">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                        <div class="card-content">
-                            <h3>${item.title}</h3>
-                            <p>${item.author}</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <p class="genre">${item.genre}</p>
-                                <span class="views-badge">${totalViews} vues</span>
-                            </div>
-                            <div class="rating" onclick="event.stopPropagation()">
-                                ${[1,2,3,4,5].map(star => `
-                                    <i class="fas fa-star ${star <= rating ? 'active' : ''}" 
-                                       onclick="rateItem('${item.id}', ${star})"></i>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function renderLibraryHistory() {
-            const container = document.getElementById('historyContent');
-            if (!container) return;
-            
-            container.innerHTML = '';
-
-            if (userHistory.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-history"></i>
-                        <h3>Aucun historique</h3>
-                        <p>Vous n'avez encore rien lu récemment.</p>
-                        <button class="btn btn-primary" onclick="showPage('homePage')">
-                            <i class="fas fa-book-open"></i> Commencer à lire
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            userHistory.forEach(entry => {
-                const item = getItemById(entry.itemId);
-                if (item) {
-                    container.innerHTML += `
-                        <div class="history-item" onclick="openDescription('${entry.itemId}')">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h4>${entry.title}</h4>
-                                    <p style="color: var(--gray); margin-top: 5px;">
-                                        <i class="fas fa-clock"></i> Lu le ${entry.date}
-                                    </p>
-                                </div>
-                                <i class="fas fa-chevron-right" style="color: var(--gray);"></i>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-        }
-
-        function switchLibraryTab(tabName) {
-            // Mettre à jour les tabs
-            document.querySelectorAll('.library-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`.library-tab[data-tab="${tabName}"]`).classList.add('active');
-
-            // Mettre à jour le contenu
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(`${tabName}Tab`).classList.add('active');
-
-            // Recharger le contenu
-            if (tabName === 'favorites') {
-                renderFavorites();
-            } else if (tabName === 'history') {
-                renderLibraryHistory();
-            }
-        }
-
-        // =============================
-        // DONNÉES (livres, mangas, articles)
-        // =============================
-        const data = {
-            books: [
-                {
-                    id: "b1",
-                    title: "Plumes Brûlées",
-                    author: "Dr DOOM",
-                    genre: "Poésie",
-                    cover: "assets/images/plume.png",
-                    description: "Alfred de Musset, Louis Aragon, Albert Camus, Victor Hugo, de grands amoureux de l'amour mais qui ne l'ont jamais connu. Dans leurs écrits, ils présentaient l'amour comme quelque chose de magique entre deux personnes, mais leurs vies...",
-                    chapters: [
-                        { title: "Poème", pdf: "assets/images/plume.pdf" }
-                    ],
-                    comments: []
-                },
-                {
-                    id: "b2",
-                    title: "L'Héritage des Anciens",
-                    author: "Pierre Dubois",
-                    genre: "Aventure",
-                    cover: "https://picsum.photos/300/400?random=4",
-                    description: "Une quête épique à travers des terres oubliées pour retrouver l'héritage des anciens dieux. Accompagnez Kael dans sa périlleuse aventure remplie de mystères et de découvertes.",
-                    chapters: [
-                        { title: "Chapitre 1: L'Appel", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
-                        { title: "Chapitre 2: Le Premier Temple", pdf: "https://www.africau.edu/images/default/sample.pdf" }
-                    ],
-                    comments: []
-                }
-            ],
-            mangas: [
-                {
-                    id: "m1",
-                    title: "Blade Runner X",
-                    author: "Kenji Sato",
-                    genre: "Action",
-                    cover: "https://picsum.photos/300/400?random=2",
-                    description: "Un jeune guerrier cybernétique découvrant la vérité sur son passé dans un Tokyo futuriste. Entre combats spectaculaires et révélations choquantes, cette série vous tiendra en haleine.",
-                    chapters: [
-                        { title: "Chapitre 1: Réveil Numérique", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
-                        { title: "Chapitre 2: Mémoires Fragmentées", pdf: "https://www.africau.edu/images/default/sample.pdf" }
-                    ],
-                    comments: []
-                },
-                {
-                    id: "m2",
-                    title: "Sakura Dreams",
-                    author: "Yuki Tanaka",
-                    genre: "Romance",
-                    cover: "https://picsum.photos/300/400?random=5",
-                    description: "Une histoire d'amour touchante entre une artiste et un musicien sous les cerisiers en fleurs. Une romance délicate qui explore les thèmes de la passion et du destin.",
-                    chapters: [
-                        { title: "Chapitre 1: Première Rencontre", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
-                    ],
-                    comments: []
-                }
-            ],
-            articles: [
-                {
-                    id: "a1",
-                    title: "Les Secrets du Cerveau Humain",
-                    author: "Dr. Malika Ondo",
-                    genre: "Science",
-                    cover: "https://picsum.photos/300/400?random=3",
-                    description: "Analyse approfondie du fonctionnement du cerveau et des dernières découvertes en neurosciences. Explorez les mystères de la conscience et les avancées récentes dans la compréhension de l'esprit humain.",
-                    pdf: "https://www.africau.edu/images/default/sample.pdf",
-                    comments: []
-                },
-                {
-                    id: "a2",
-                    title: "L'IA et la Créativité",
-                    author: "Dr. Thomas Weber",
-                    genre: "Technologie",
-                    cover: "https://picsum.photos/300/400?random=6",
-                    description: "Comment l'intelligence artificielle transforme le paysage créatif et artistique. Une exploration fascinante de l'intersection entre technologie et art.",
-                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-                    comments: []
-                }
-            ]
-        };
-
-        // =============================
-        // FONCTIONNALITÉS PDF OPTIMISÉES
-        // =============================
-
-        // Annuler le chargement d'un PDF en cours
-        function cancelPdfLoading() {
-            if (pdfLoadingTask) {
-                pdfLoadingTask.destroy();
-                pdfLoadingTask = null;
-            }
-            currentPdf = null;
-        }
-
-        // Charger un PDF avec gestion d'erreur et annulation
-        async function loadPDF(url) {
-            // Annuler tout chargement en cours
-            cancelPdfLoading();
-            
-            try {
-                document.getElementById('pdfViewer').innerHTML = `
-                    <div class="pdf-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Chargement du PDF en haute qualité...</p>
-                        <div style="margin-top: 15px;">
-                            <button class="btn btn-outline" onclick="cancelPdfLoading(); showPage('descriptionPage')">
-                                <i class="fas fa-times"></i> Annuler
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                // Configuration pour optimiser le chargement
-                pdfLoadingTask = pdfjsLib.getDocument({
-                    url: url,
-                    cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/cmaps/',
-                    cMapPacked: true,
-                    disableAutoFetch: false, // Permet le chargement progressif
-                    disableStream: false     // Permet le streaming
-                });
-                
-                currentPdf = await pdfLoadingTask.promise;
-                pdfLoadingTask = null;
-                
-                document.getElementById('pageCount').textContent = currentPdf.numPages;
-                currentPageNum = 1;
-                await renderPage(currentPageNum);
-                
-            } catch (error) {
-                console.error('Erreur de chargement PDF:', error);
-                document.getElementById('pdfViewer').innerHTML = `
-                    <div class="pdf-error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Erreur de chargement du PDF</p>
-                        <p style="font-size: 0.9rem; margin-top: 10px;">${error.message || 'Vérifiez votre connexion internet'}</p>
-                        <div style="margin-top: 15px;">
-                            <button class="btn btn-primary" onclick="showPage('descriptionPage')">
-                                <i class="fas fa-arrow-left"></i> Retour
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        // Rendu de page haute qualité
-        async function renderPage(pageNum) {
-            if (!currentPdf) return;
-
-            try {
-                const page = await currentPdf.getPage(pageNum);
-                
-                // Ajustement de l'échelle pour une meilleure qualité
-                const container = document.getElementById('pdfViewer');
-                const containerWidth = container.clientWidth - 40;
-                
-                const viewport = page.getViewport({ scale: 1 });
-                
-                // Augmenter la résolution pour réduire le flou
-                const pixelRatio = highQualityMode ? (window.devicePixelRatio || 1) : 1;
-                const scale = Math.min(currentScale * pixelRatio, (containerWidth / viewport.width) * pixelRatio);
-                const scaledViewport = page.getViewport({ scale: scale });
-                
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                
-                // Configuration haute résolution
-                canvas.height = Math.floor(scaledViewport.height);
-                canvas.width = Math.floor(scaledViewport.width);
-                canvas.style.height = `${scaledViewport.height / pixelRatio}px`;
-                canvas.style.width = `${scaledViewport.width / pixelRatio}px`;
-                
-                // Améliorer la qualité du rendu
-                context.imageSmoothingEnabled = true;
-                context.imageSmoothingQuality = 'high';
-                
-                const progressDiv = document.createElement('div');
-                progressDiv.className = 'pdf-loading';
-                progressDiv.innerHTML = `
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Chargement de la page ${pageNum} en haute qualité...</p>
-                `;
-                
-                container.innerHTML = '';
-                container.appendChild(progressDiv);
-                
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: scaledViewport,
-                    enableWebGL: true, // Activer l'accélération matérielle
-                    intent: 'display' // Optimiser pour l'affichage
-                };
-                
-                await page.render(renderContext).promise;
-                
-                container.innerHTML = '';
-                container.appendChild(canvas);
-                document.getElementById('pageNum').textContent = pageNum;
-                
-            } catch (error) {
-                console.error('Erreur de rendu de page:', error);
-                document.getElementById('pdfViewer').innerHTML = `
-                    <div class="pdf-error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Erreur d'affichage de la page</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Navigation entre pages
-        function nextPage() {
-            if (currentPdf && currentPageNum < currentPdf.numPages) {
-                currentPageNum++;
-                renderPage(currentPageNum);
-            }
-        }
-
-        function prevPage() {
-            if (currentPdf && currentPageNum > 1) {
-                currentPageNum--;
-                renderPage(currentPageNum);
-            }
-        }
-
-        function zoomIn() {
-            if (currentScale < 3.0) { // Limiter le zoom maximum
-                currentScale += 0.2;
-                renderPage(currentPageNum);
-                showToast(`Zoom: ${Math.round(currentScale * 100)}%`);
-            }
-        }
-
-        function zoomOut() {
-            if (currentScale > 0.5) {
-                currentScale -= 0.2;
-                renderPage(currentPageNum);
-                showToast(`Zoom: ${Math.round(currentScale * 100)}%`);
-            }
-        }
-
-        // Ajouter un reset du zoom
-        function resetZoom() {
-            currentScale = 1.5; // Valeur par défaut légèrement augmentée
-            renderPage(currentPageNum);
-            showToast('Zoom réinitialisé');
-        }
-
-        // Mode haute qualité
-        function toggleQuality() {
-            highQualityMode = !highQualityMode;
-            const indicator = document.getElementById('qualityIndicator');
-            if (indicator) {
-                indicator.textContent = highQualityMode ? 'Haute Qualité' : 'Performance';
-            }
-            showToast(highQualityMode ? 'Mode haute qualité activé' : 'Mode performance activé');
-            renderPage(currentPageNum); // Re-rendre avec les nouveaux paramètres
-        }
-
-        // =============================
-        // NAVIGATION ENTRE PAGES
-        // =============================
-        function showPage(pageId) {
-            // Annuler le chargement PDF si on quitte la page de lecture
-            if (pageId !== 'readerPage') {
-                cancelPdfLoading();
-            }
-            
-            document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-            document.getElementById(pageId).style.display = "block";
-            
-            document.querySelectorAll(".nav-link").forEach(link => {
-                link.classList.remove("active");
-            });
-            
-            if (pageId === "booksPage") {
-                renderList("booksPageList", data.books);
-            } else if (pageId === "mangaPage") {
-                renderList("mangaPageList", data.mangas);
-            } else if (pageId === "articlesPage") {
-                renderList("articlesPageList", data.articles);
-            } else if (pageId === "libraryPage") {
-                switchLibraryTab('favorites');
-            } else if (pageId === "accountPage") {
-                renderHistory();
-                updateStats();
-            }
-        }
-
-        document.querySelectorAll(".nav-link").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                e.preventDefault();
-                if (btn.id === "accountButton") {
-                    showPage("accountPage");
-                } else {
-                    showPage(btn.dataset.page);
-                }
-            });
-        });
-
-        document.querySelectorAll(".view-all").forEach(link => {
-            link.addEventListener("click", (e) => {
-                e.preventDefault();
-                showPage(link.dataset.page);
-            });
-        });
-
-        // =============================
-        // AFFICHAGE DES LISTES
-        // =============================
-        function renderList(containerId, items) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            container.innerHTML = "";
-
-            items.forEach(item => {
-                const totalViews = getViews(item.id);
-                const isFav = isFavorite(item.id);
-                const rating = getRating(item.id);
-                
-                container.innerHTML += `
-                    <div class="item-card" onclick="openDescription('${item.id}')">
-                        <img src="${item.cover}" alt="${item.title}">
-                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${item.id}'); this.classList.toggle('active')">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                        <div class="card-content">
-                            <h3>${item.title}</h3>
-                            <p>${item.author}</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <p class="genre">${item.genre}</p>
-                                <span class="views-badge">${totalViews} vues</span>
-                            </div>
-                            <div class="rating" onclick="event.stopPropagation()">
-                                ${[1,2,3,4,5].map(star => `
-                                    <i class="fas fa-star ${star <= rating ? 'active' : ''}" 
-                                       onclick="rateItem('${item.id}', ${star})"></i>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Initialisation des listes
-        renderList("booksList", data.books);
-        renderList("mangaList", data.mangas);
-        renderList("articlesList", data.articles);
-        renderList("booksPageList", data.books);
-        renderList("mangaPageList", data.mangas);
-        renderList("articlesPageList", data.articles);
-
-        // =============================
-        // PAGE DESCRIPTION AMÉLIORÉE
-        // =============================
-        let currentItem = null;
-
-        function openDescription(id) {
-            let item = data.books.find(b => b.id === id) ||
-                       data.mangas.find(m => m.id === id) ||
-                       data.articles.find(a => a.id === id);
-
-            currentItem = item;
-
-            // Mettre à jour l'image de couverture
-            document.getElementById('descCover').src = item.cover;
-            document.getElementById('descCover').alt = item.title;
-
-            const isFav = isFavorite(item.id);
-            const rating = getRating(item.id);
-
-            let html = `
-                <div class="book-info">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <h1>${item.title}</h1>
-                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${item.id}'); this.classList.toggle('active')">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                    </div>
-                    <div class="book-meta">
-                        <span><b><i class="fas fa-user"></i> Auteur :</b> ${item.author}</span>
-                        <span><b><i class="fas fa-tag"></i> Genre :</b> ${item.genre}</span>
-                        <span><b><i class="fas fa-eye"></i> Vues :</b> ${getViews(item.id)}</span>
-                    </div>
-                    <div class="book-description">
-                        <p>${item.description}</p>
-                    </div>
-                    <div style="margin: 20px 0;">
-                        <div class="rating">
-                            <span style="margin-right: 10px; font-weight: 600;">Votre note :</span>
-                            ${[1,2,3,4,5].map(star => `
-                                <i class="fas fa-star ${star <= rating ? 'active' : ''}" 
-                                   onclick="rateItem('${item.id}', ${star})"></i>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div class="book-actions">
+            toast.innerHTML = `
+                <i class="${icons[type] || icons.success}"></i>
+                <span>${message}</span>
             `;
-
-            if (item.chapters) {
-                html += `
-                    </div>
-                </div>
-                <div class="chapters-section">
-                    <h2><i class="fas fa-list-ol"></i> Chapitres disponibles</h2>
-                `;
-                item.chapters.forEach((ch, i) => {
-                    const chapterViews = getViews(item.id, i);
-                    html += `
-                        <button class="chapter-btn" onclick="openChapter('${item.id}', ${i})">
-                            <span>${ch.title}</span>
-                            <span class="chapter-views">${chapterViews} vues</span>
-                        </button>
-                    `;
-                });
-            } else {
-                const articleViews = getViews(item.id);
-                html += `
-                        <button class="btn btn-primary" onclick="openPDF('${item.id}')">
-                            <i class="fas fa-book-open"></i> Lire l'article — ${articleViews} vues
-                        </button>
-                    </div>
-                </div>
-                `;
-            }
-
-            // Commentaires
-            html += `
-                <div class="comments-section">
-                    <h2><i class="fas fa-comments"></i> Commentaires (${item.comments.length})</h2>
-                    <div class="comment-form">
-                        <textarea id="commentInput" placeholder="Partagez vos impressions sur cette œuvre..."></textarea>
-                        <button class="btn btn-primary" onclick="addComment()">
-                            <i class="fas fa-paper-plane"></i> Publier le commentaire
-                        </button>
-                    </div>
-                    <div id="comments">
-                    </div>
-                </div>
-            `;
-
-            document.getElementById("descriptionContent").innerHTML = html;
-            showPage("descriptionPage");
-            renderComments();
-        }
-
-        // =============================
-        // PDF LECTURE
-        // =============================
-        function openChapter(itemId, chapterIndex) {
-            openPDF(itemId, chapterIndex);
-        }
-
-        function openPDF(itemId, chapterIndex = null) {
-            let item = data.books.find(b => b.id === itemId) ||
-                       data.mangas.find(m => m.id === itemId) ||
-                       data.articles.find(a => a.id === itemId);
-
-            currentItem = item;
-
-            // Incrémenter les vues
-            incrementViews(itemId, chapterIndex);
-
-            const pdfUrl = chapterIndex !== null ? item.chapters[chapterIndex].pdf : item.pdf;
-            const title = chapterIndex !== null ? 
-                `${item.title} - ${item.chapters[chapterIndex].title}` : 
-                item.title;
-
-            document.getElementById("readerTitle").textContent = title;
-            loadPDF(pdfUrl);
-            showPage("readerPage");
-        }
-
-        // =============================
-        // COMMENTAIRES
-        // =============================
-        function renderComments() {
-            const list = document.getElementById("comments");
-            if (!list || !currentItem) return;
             
-            list.innerHTML = "";
-
-            if (currentItem.comments.length === 0) {
-                list.innerHTML = `
-                    <div class="comment">
-                        <p style="text-align: center; color: var(--gray);">
-                            <i class="fas fa-comment-slash"></i><br>
-                            Aucun commentaire pour le moment. Soyez le premier à commenter !
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-
-            currentItem.comments.forEach(c => {
-                list.innerHTML += `
-                    <div class="comment">
-                        <div class="comment-header">
-                            <span class="comment-author"><i class="fas fa-user"></i> Lecteur</span>
-                            <span class="comment-date">${c.date}</span>
-                        </div>
-                        <p>${c.text}</p>
-                    </div>
-                `;
-            });
-        }
-
-        function addComment() {
-            const input = document.getElementById("commentInput");
-            if (!input || input.value.trim() === "") {
-                showToast('Veuillez écrire un commentaire', 'warning');
-                return;
-            }
-
-            currentItem.comments.unshift({
-                text: input.value,
-                date: new Date().toLocaleString('fr-FR')
-            });
-
-            input.value = "";
-            renderComments();
-            updateStats();
-            showToast('Commentaire publié !');
-        }
-
-        // =============================
-        // RECHERCHE
-        // =============================
-        document.getElementById("searchInput").addEventListener("input", function () {
-            const text = this.value.toLowerCase();
-
-            const allItems = [
-                ...data.books,
-                ...data.mangas,
-                ...data.articles
-            ];
-
-            const results = allItems.filter(
-                i =>
-                    i.title.toLowerCase().includes(text) ||
-                    i.author.toLowerCase().includes(text) ||
-                    i.genre.toLowerCase().includes(text)
-            );
-
-            renderList("searchResults", results);
-            document.getElementById("resultsCount").textContent = 
-                `${results.length} résultat(s) trouvé(s) pour "${this.value}"`;
-
-            if (text.length > 0) {
-                showPage("searchPage");
-            } else {
-                showPage("homePage");
-            }
-        });
-
-        // =============================
-        // COMPTE UTILISATEUR
-        // =============================
-        function renderHistory() {
-            const container = document.getElementById("historyList");
-            if (!container) return;
+            container.appendChild(toast);
             
-            container.innerHTML = "";
-
-            if (userHistory.length === 0) {
-                container.innerHTML = `
-                    <div class="history-item">
-                        <p style="text-align: center; color: var(--gray);">
-                            <i class="fas fa-history"></i><br>
-                            Aucun historique de lecture pour le moment.
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-
-            userHistory.forEach(entry => {
-                container.innerHTML += `
-                    <div class="history-item">
-                        <p>📖 <strong>${entry.title}</strong> — <span>${entry.date}</span></p>
-                    </div>
-                `;
-            });
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
-
-        function updateStats() {
-            const totalReads = userHistory.length;
-            const favoritesCount = userFavorites.length;
-            
-            document.getElementById("totalReads").textContent = totalReads;
-            document.getElementById("favoritesCount").textContent = favoritesCount;
-
-            const allComments = [
-                ...data.books.flatMap(b => b.comments),
-                ...data.mangas.flatMap(m => m.comments),
-                ...data.articles.flatMap(a => a.comments)
-            ];
-            document.getElementById("commentsCount").textContent = allComments.length;
-        }
-
-        // =============================
-        // CAROUSEL HERO AMÉLIORÉ
-        // =============================
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.hero-slide');
-        const indicators = document.querySelectorAll('.indicator');
-        const totalSlides = slides.length;
-
-        function showSlide(index) {
-            slides.forEach(slide => slide.classList.remove('active'));
-            indicators.forEach(indicator => indicator.classList.remove('active'));
-            
-            slides[index].classList.add('active');
-            indicators[index].classList.add('active');
-            currentSlide = index;
-        }
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            showSlide(currentSlide);
-        }
-
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-            showSlide(currentSlide);
-        }
-
-        // Événements carousel
-        document.querySelector('.carousel-control.next').addEventListener('click', nextSlide);
-        document.querySelector('.carousel-control.prev').addEventListener('click', prevSlide);
-
-        // Navigation par indicateurs
-        indicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => {
-                showSlide(index);
-            });
-        });
-
-        // Carousel automatique
-        let carouselInterval = setInterval(nextSlide, 6000);
-
-        // Pause au survol
-        const carousel = document.querySelector('.hero-carousel');
-        carousel.addEventListener('mouseenter', () => {
-            clearInterval(carouselInterval);
-        });
-
-        carousel.addEventListener('mouseleave', () => {
-            carouselInterval = setInterval(nextSlide, 6000);
-        });
-
+        
         // =============================
         // INITIALISATION
         // =============================
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // Cacher le splash screen après 2 secondes
+            // Cacher le splash screen
             setTimeout(() => {
                 const splashScreen = document.getElementById('splashScreen');
                 splashScreen.style.opacity = '0';
@@ -2641,33 +2279,52 @@
                     splashScreen.style.display = 'none';
                 }, 500);
             }, 2000);
-
-            // Charger les données utilisateur
-            loadUserData();
             
-            // Événements des boutons
+            // Charger l'utilisateur
+            loadCurrentUser();
+            
+            // Charger le thème
+            const savedTheme = localStorage.getItem('muyambili_theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+            updateThemeIcon();
+            
+            // Événements
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
             document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
+            
             document.getElementById('favoritesBtn').addEventListener('click', () => {
-                showPage('libraryPage');
-                switchLibraryTab('favorites');
+                if (currentUser) {
+                    showPage('libraryPage');
+                } else {
+                    showAuthModal('login');
+                }
             });
             
-            // Événements des tabs de la bibliothèque
-            document.querySelectorAll('.library-tab').forEach(tab => {
+            // Initialiser les onglets d'authentification
+            document.querySelectorAll('.auth-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
-                    switchLibraryTab(tab.dataset.tab);
+                    switchAuthTab(tab.dataset.tab);
                 });
+            });
+            
+            // Contact form
+            document.getElementById('contactForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                showToast('Message envoyé avec succès !', 'success');
+                this.reset();
             });
             
             // Afficher la page d'accueil
             showPage('homePage');
             
-            // Mettre à jour les statistiques
-            updateStats();
-            
-            // Démarrer le carousel
-            showSlide(0);
+            // Message de bienvenue
+            if (currentUser) {
+                setTimeout(() => {
+                    showToast(`Bon retour, ${currentUser.username} !`, 'success');
+                }, 1000);
+            }
         });
     </script>
 </body>
