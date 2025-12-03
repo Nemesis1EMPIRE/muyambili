@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
     <style>
+        /* Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -55,6 +56,7 @@
             background: linear-gradient(rgba(45, 45, 45, 0.9), rgba(45, 45, 45, 0.9));
         }
 
+        /* Splash Screen */
         #splashScreen {
             position: fixed;
             top: 0;
@@ -92,8 +94,14 @@
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes spin {
@@ -101,6 +109,7 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Toast Notifications */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -124,10 +133,24 @@
             word-wrap: break-word;
         }
 
-        .toast.show { transform: translateX(0); }
-        .toast.error { border-left-color: var(--danger); }
-        .toast.warning { border-left-color: var(--warning); }
+        .toast.show {
+            transform: translateX(0);
+        }
 
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+            min-width: 24px;
+        }
+
+        /* Layout */
         .app-container {
             display: flex;
             min-height: 100vh;
@@ -135,8 +158,11 @@
             animation: fadeIn 0.5s ease 0.5s forwards;
         }
 
-        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
 
+        /* Sidebar */
         .sidebar {
             width: 250px;
             background-color: var(--primary);
@@ -154,11 +180,23 @@
             margin-bottom: 20px;
         }
 
-        .logo h1 { font-size: 1.8rem; font-weight: 700; }
-        .logo span { color: var(--accent); }
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
 
-        .nav-links { list-style: none; padding: 0 15px; }
-        .nav-links li { margin-bottom: 10px; }
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+        .nav-links li {
+            margin-bottom: 10px;
+        }
 
         .nav-links a {
             display: flex;
@@ -197,15 +235,21 @@
             width: calc(100% - 30px);
         }
 
-        .theme-toggle:hover { background: rgba(212, 184, 150, 0.5); }
+        .theme-toggle:hover {
+            background: rgba(212, 184, 150, 0.5);
+        }
 
+        /* Main Content */
         .main-content {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
         }
 
-        .header { margin-bottom: 30px; }
+        /* Header with Search */
+        .header {
+            margin-bottom: 30px;
+        }
 
         .header-top {
             display: flex;
@@ -263,9 +307,13 @@
             transition: var(--transition);
         }
 
-        .user-actions button:hover { background: var(--secondary); }
+        .user-actions button:hover {
+            background: var(--secondary);
+        }
 
-        .user-avatar { position: relative; }
+        .user-avatar {
+            position: relative;
+        }
 
         .user-avatar .avatar {
             width: 40px;
@@ -281,8 +329,11 @@
             transition: var(--transition);
         }
 
-        .user-avatar .avatar:hover { transform: scale(1.05); }
+        .user-avatar .avatar:hover {
+            transform: scale(1.05);
+        }
 
+        /* Modales d'authentification */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -315,7 +366,9 @@
             transition: transform 0.3s ease;
         }
 
-        .modal-overlay.active .auth-modal { transform: translateY(0); }
+        .modal-overlay.active .auth-modal {
+            transform: translateY(0);
+        }
 
         .auth-header {
             background: var(--primary);
@@ -324,9 +377,15 @@
             color: var(--dark);
         }
 
-        .auth-header h2 { font-size: 1.8rem; margin-bottom: 5px; }
+        .auth-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
 
-        .auth-tabs { display: flex; background: var(--secondary); }
+        .auth-tabs {
+            display: flex;
+            background: var(--secondary);
+        }
 
         .auth-tab {
             flex: 1;
@@ -349,9 +408,13 @@
             display: none;
         }
 
-        .auth-form.active { display: block; }
+        .auth-form.active {
+            display: block;
+        }
 
-        .form-group { margin-bottom: 20px; }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
         .form-group label {
             display: block;
@@ -403,7 +466,9 @@
             display: none;
         }
 
-        .auth-error.show { display: block; }
+        .auth-error.show {
+            display: block;
+        }
 
         .auth-footer {
             text-align: center;
@@ -413,6 +478,17 @@
             border-top: 1px solid var(--secondary);
         }
 
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Menu utilisateur */
         .user-menu {
             position: absolute;
             top: 50px;
@@ -426,13 +502,25 @@
             overflow: hidden;
         }
 
-        .user-menu.active { display: block; }
+        .user-menu.active {
+            display: block;
+        }
 
         .user-info {
             padding: 15px;
             background: var(--primary);
             color: var(--dark);
             border-bottom: 1px solid var(--secondary);
+        }
+
+        .user-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .user-info small {
+            color: var(--gray);
+            font-size: 0.8rem;
         }
 
         .user-menu-item {
@@ -444,10 +532,21 @@
             border-bottom: 1px solid var(--secondary);
         }
 
-        .user-menu-item:last-child { border-bottom: none; }
-        .user-menu-item:hover { background: var(--light); }
-        .user-menu-item i { margin-right: 10px; width: 20px; text-align: center; }
+        .user-menu-item:last-child {
+            border-bottom: none;
+        }
 
+        .user-menu-item:hover {
+            background: var(--light);
+        }
+
+        .user-menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Hero Carousel */
         .hero-carousel {
             position: relative;
             height: 500px;
@@ -472,7 +571,9 @@
             padding: 0 60px;
         }
 
-        .hero-slide.active { opacity: 1; }
+        .hero-slide.active {
+            opacity: 1;
+        }
 
         .hero-content {
             max-width: 50%;
@@ -515,8 +616,13 @@
             transform: translateY(-50%) scale(1.1);
         }
 
-        .carousel-control.prev { left: 20px; }
-        .carousel-control.next { right: 20px; }
+        .carousel-control.prev {
+            left: 20px;
+        }
+
+        .carousel-control.next {
+            right: 20px;
+        }
 
         .carousel-indicators {
             position: absolute;
@@ -541,6 +647,7 @@
             transform: scale(1.2);
         }
 
+        /* Content Grid */
         .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -570,10 +677,27 @@
             object-fit: cover;
         }
 
-        .card-content { padding: 20px; }
-        .card-content h3 { margin-bottom: 8px; font-size: 1.2rem; color: var(--dark); }
-        .card-content p { color: var(--gray); font-size: 0.95rem; margin-bottom: 12px; }
-        .genre { color: var(--accent) !important; font-weight: 600; font-size: 0.9rem; }
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h3 {
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        .card-content p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .genre {
+            color: var(--accent) !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
 
         .views-badge {
             background: var(--light);
@@ -601,8 +725,14 @@
             color: var(--gray);
         }
 
-        .favorite-btn:hover { background: white; transform: scale(1.1); }
-        .favorite-btn.active { color: #e74c3c; }
+        .favorite-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .favorite-btn.active {
+            color: #e74c3c;
+        }
 
         .rating {
             display: flex;
@@ -616,11 +746,20 @@
             transition: var(--transition);
         }
 
-        .rating i.active { color: #f39c12; }
+        .rating i.active {
+            color: #f39c12;
+        }
 
-        .page { display: none; }
-        .page.active { display: block; }
+        /* Pages */
+        .page {
+            display: none;
+        }
 
+        .page.active {
+            display: block;
+        }
+
+        /* Section Title */
         .section-title {
             margin: 40px 0 25px;
             padding-bottom: 10px;
@@ -630,7 +769,10 @@
             align-items: center;
         }
 
-        .section-title h2 { font-size: 2rem; color: var(--dark); }
+        .section-title h2 {
+            font-size: 2rem;
+            color: var(--dark);
+        }
 
         .view-all {
             color: var(--accent);
@@ -641,8 +783,11 @@
             transition: var(--transition);
         }
 
-        .view-all:hover { color: var(--dark); }
+        .view-all:hover {
+            color: var(--dark);
+        }
 
+        /* Page de description */
         .book-detail {
             display: grid;
             grid-template-columns: 300px 1fr;
@@ -656,7 +801,11 @@
             box-shadow: 0 8px 25px rgba(93, 64, 55, 0.2);
         }
 
-        .book-info h1 { font-size: 2.5rem; margin-bottom: 15px; color: var(--dark); }
+        .book-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
 
         .book-meta {
             display: flex;
@@ -744,10 +893,23 @@
             transform: translateX(5px);
         }
 
-        .chapter-locked { opacity: 0.7; cursor: not-allowed; }
-        .chapter-locked:hover { transform: none; background: white; border-color: var(--secondary); }
-        .lock-icon { color: var(--gray); margin-left: 10px; }
+        .chapter-locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
 
+        .chapter-locked:hover {
+            transform: none;
+            background: white;
+            border-color: var(--secondary);
+        }
+
+        .lock-icon {
+            color: var(--gray);
+            margin-left: 10px;
+        }
+
+        /* LECTEUR PDF OPTIMISÉ */
         .reading-header {
             display: flex;
             justify-content: space-between;
@@ -755,6 +917,11 @@
             margin-bottom: 25px;
             padding-bottom: 20px;
             border-bottom: 2px solid var(--secondary);
+        }
+
+        .reading-header h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
         }
 
         .pdf-viewer-container {
@@ -793,6 +960,7 @@
             text-align: center;
         }
 
+        /* Conteneur PDF optimisé */
         #pdfViewer {
             min-height: 600px;
             display: flex;
@@ -806,10 +974,11 @@
             position: relative;
         }
 
+        /* Canvas optimisé pour le mode rapide */
         .pdf-canvas-container {
             position: relative;
             margin: 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             overflow: hidden;
         }
@@ -818,9 +987,20 @@
             display: block;
             max-width: 100%;
             height: auto;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
             background: white;
         }
 
+        .reading-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        /* États de chargement */
         .pdf-loading {
             text-align: center;
             padding: 60px;
@@ -858,14 +1038,7 @@
             margin: 0 auto;
         }
 
-        .reading-controls {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
+        /* Contact Page */
         .contact-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -880,11 +1053,33 @@
             box-shadow: var(--shadow);
         }
 
+        .contact-info h3 {
+            margin-bottom: 25px;
+            color: var(--dark);
+            font-size: 1.5rem;
+        }
+
         .info-item {
             display: flex;
             align-items: flex-start;
             gap: 18px;
             margin-bottom: 25px;
+        }
+
+        .info-item i {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-top: 3px;
+        }
+
+        .info-content h4 {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .info-content p {
+            color: var(--gray);
+            line-height: 1.6;
         }
 
         .contact-form {
@@ -894,6 +1089,7 @@
             box-shadow: var(--shadow);
         }
 
+        /* Bibliothèque */
         .library-tabs {
             display: flex;
             gap: 10px;
@@ -917,8 +1113,17 @@
             border-bottom-color: var(--primary);
         }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .library-tab:hover {
+            color: var(--dark);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
 
         .history-item {
             padding: 20px;
@@ -942,8 +1147,23 @@
             color: var(--gray);
         }
 
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        /* Media Queries pour le responsive */
         @media (max-width: 768px) {
-            .app-container { flex-direction: column; }
+            .app-container {
+                flex-direction: column;
+            }
+
             .sidebar {
                 width: 100%;
                 position: fixed;
@@ -953,37 +1173,119 @@
                 padding: 10px 0;
                 z-index: 100;
             }
-            .logo { display: none; }
+
+            .logo {
+                display: none;
+            }
+
             .nav-links {
                 display: flex;
                 justify-content: space-around;
                 padding: 0;
             }
-            .nav-links li { margin-bottom: 0; }
+
+            .nav-links li {
+                margin-bottom: 0;
+            }
+
             .nav-links a {
                 flex-direction: column;
                 padding: 8px 5px;
                 font-size: 0.8rem;
                 text-align: center;
             }
-            .nav-links i { margin-right: 0; margin-bottom: 5px; font-size: 1.2rem; }
-            .theme-toggle { display: none; }
-            .main-content { padding-bottom: 80px; }
-            .hero-carousel { height: 400px; }
-            .hero-slide { padding: 0 20px; }
-            .hero-content { max-width: 100%; text-align: center; }
-            .hero-content h2 { font-size: 2rem; }
-            .content-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-            .book-detail { grid-template-columns: 1fr; gap: 25px; }
-            .auth-modal { width: 95%; }
-            .contact-container { grid-template-columns: 1fr; }
-            .pdf-controls { flex-direction: column; gap: 15px; }
-            .pdf-nav-buttons { justify-content: center; }
-            #pdfViewer { min-height: 400px; }
+
+            .nav-links i {
+                margin-right: 0;
+                margin-bottom: 5px;
+                font-size: 1.2rem;
+            }
+
+            .theme-toggle {
+                display: none;
+            }
+
+            .main-content {
+                padding-bottom: 80px;
+            }
+
+            .hero-carousel {
+                height: 400px;
+            }
+
+            .hero-slide {
+                padding: 0 20px;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                text-align: center;
+            }
+
+            .hero-content h2 {
+                font-size: 2rem;
+            }
+
+            .content-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+            }
+
+            .book-detail {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .auth-modal {
+                width: 95%;
+            }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+
+            .pdf-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .pdf-nav-buttons {
+                justify-content: center;
+            }
+
+            #pdfViewer {
+                min-height: 400px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-only {
+                display: none;
+            }
         }
     </style>
+    
+    <!-- Protection contre l'inspection du code -->
+    <script>
+        // Empêcher l'accès au code source
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            // Bloquer F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            if (e.keyCode === 123 || 
+                (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
+                (e.ctrlKey && e.shiftKey && e.keyCode === 74) || 
+                (e.ctrlKey && e.keyCode === 85)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
 </head>
 <body>
+    <!-- Splash Screen -->
     <div id="splashScreen">
         <div class="splash-content">
             <div class="splash-logo">MUYAMBILI</div>
@@ -991,6 +1293,7 @@
         </div>
     </div>
 
+    <!-- Modal d'authentification -->
     <div class="modal-overlay" id="authModal">
         <div class="auth-modal">
             <div class="auth-header">
@@ -1059,9 +1362,11 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <div class="app-container">
+        <!-- Sidebar Navigation -->
         <nav class="sidebar">
             <div class="logo">
                 <h1>MUY<span>AMBILI</span></h1>
@@ -1080,7 +1385,9 @@
             </button>
         </nav>
 
+        <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Header with Search -->
             <header class="header">
                 <div class="header-top">
                     <div class="search-bar">
@@ -1103,6 +1410,7 @@
                     </div>
                 </div>
                 
+                <!-- Hero Carousel -->
                 <div class="hero-carousel">
                     <div class="hero-slide active" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('assets/images/plume.png')">
                         <div class="hero-content">
@@ -1137,6 +1445,7 @@
                 </div>
             </header>
 
+            <!-- Home Page -->
             <section id="homePage" class="page active">
                 <div class="section-title">
                     <h2>Romans en Vedette</h2>
@@ -1157,6 +1466,7 @@
                 <div class="content-grid" id="articlesList"></div>
             </section>
 
+            <!-- Books Page -->
             <section id="booksPage" class="page">
                 <div class="section-title">
                     <h2>Tous les Romans</h2>
@@ -1164,6 +1474,7 @@
                 <div class="content-grid" id="booksPageList"></div>
             </section>
 
+            <!-- Manga Page -->
             <section id="mangaPage" class="page">
                 <div class="section-title">
                     <h2>Tous les Mangas</h2>
@@ -1171,6 +1482,7 @@
                 <div class="content-grid" id="mangaPageList"></div>
             </section>
 
+            <!-- Articles Page -->
             <section id="articlesPage" class="page">
                 <div class="section-title">
                     <h2>Tous les Articles</h2>
@@ -1178,6 +1490,7 @@
                 <div class="content-grid" id="articlesPageList"></div>
             </section>
 
+            <!-- Library Page -->
             <section id="libraryPage" class="page">
                 <div class="section-title">
                     <h2>Ma Bibliothèque</h2>
@@ -1185,6 +1498,7 @@
                 <div class="library-content" id="libraryContent"></div>
             </section>
 
+            <!-- Description Page -->
             <section id="descriptionPage" class="page">
                 <div class="book-detail">
                     <div class="book-cover-container">
@@ -1194,6 +1508,7 @@
                 </div>
             </section>
 
+            <!-- Reader Page -->
             <section id="readerPage" class="page">
                 <div class="reading-header">
                     <h2 id="readerTitle">Lecture</h2>
@@ -1234,7 +1549,7 @@
                     <div id="pdfViewer">
                         <div class="pdf-loading">
                             <i class="fas fa-spinner fa-spin"></i>
-                            <p>Chargement du PDF...</p>
+                            <p>Préparation du lecteur PDF...</p>
                             <div class="pdf-progress">
                                 <div class="pdf-progress-bar" id="pdfProgressBar"></div>
                             </div>
@@ -1255,6 +1570,7 @@
                 </div>
             </section>
 
+            <!-- Contact Page -->
             <section id="contactPage" class="page">
                 <div class="section-title">
                     <h2>Contactez-nous</h2>
@@ -1307,6 +1623,7 @@
                 </div>
             </section>
 
+            <!-- Search Results Page -->
             <section id="searchPage" class="page">
                 <div class="section-title">
                     <h2>Résultats de Recherche</h2>
@@ -1317,61 +1634,24 @@
     </div>
 
     <script>
+        // Configuration PDF.js optimisée pour le mode rapide uniquement
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
+        // Variables PDF optimisées
         let currentPdf = null;
         let currentPageNum = 1;
-        let currentScale = 1.2;
+        let currentScale = 1.0; // Échelle par défaut pour chargement rapide
         let pdfLoadingTask = null;
         let isRendering = false;
 
+        // =============================
+        // GESTION DE L'AUTHENTIFICATION
+        // =============================
+        
         let currentUser = null;
         let users = JSON.parse(localStorage.getItem('muyambili_users') || '[]');
         const AUTH_KEY = 'muyambili_current_user';
         
-        const data = {
-            books: [
-                {
-                    id: "b1",
-                    title: "Plumes Brûlées",
-                    author: "Dr DOOM",
-                    genre: "Poésie",
-                    cover: "assets/images/plume.png",
-                    description: "Alfred de Musset, Louis Aragon, Albert Camus, Victor Hugo, de grands amoureux de l'amour mais qui ne l'ont jamais connu. Dans leurs écrits, ils présentaient l'amour comme quelque chose de magique entre deux personnes, mais leurs vies...",
-                    chapters: [
-                        { 
-                            title: "Poème", 
-                            pdf: "assets/images/plume.pdf",
-                            viewCount: 0
-                        }
-                    ],
-                    totalViews: 0
-                }
-            ],
-            mangas: [
-                {
-                    id: "m1",
-                    title: "Bientôt disponible",
-                    author: "MUYAMBILI",
-                    genre: "À venir",
-                    cover: "https://picsum.photos/300/400?random=2",
-                    description: "De nouveaux mangas arrivent bientôt sur la plateforme.",
-                    chapters: []
-                }
-            ],
-            articles: [
-                {
-                    id: "a1",
-                    title: "À venir",
-                    author: "MUYAMBILI",
-                    genre: "Information",
-                    cover: "https://picsum.photos/300/400?random=3",
-                    description: "Des articles passionnants arrivent prochainement.",
-                    pdf: ""
-                }
-            ]
-        };
-
         function loadCurrentUser() {
             const savedUser = localStorage.getItem(AUTH_KEY);
             if (savedUser) {
@@ -1407,7 +1687,8 @@
                 createdAt: new Date().toISOString(),
                 favorites: [],
                 ratings: {},
-                history: []
+                history: [],
+                chapterViews: {} // Stockage des vues par chapitre
             };
             
             users.push(newUser);
@@ -1479,6 +1760,8 @@
                     </a>
                 `;
             }
+            
+            updateProtectedContent();
         }
         
         function getColorFromName(name) {
@@ -1486,6 +1769,52 @@
             const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             return colors[hash % colors.length];
         }
+        
+        // =============================
+        // GESTION DES VUES DE CHAPITRES
+        // =============================
+        
+        function getChapterViewCount(itemId, chapterIndex) {
+            if (!currentUser || !currentUser.chapterViews) return 0;
+            
+            const key = `${itemId}_chapter_${chapterIndex}`;
+            return currentUser.chapterViews[key] || 0;
+        }
+        
+        function incrementChapterView(itemId, chapterIndex) {
+            if (!currentUser) return false;
+            
+            if (!currentUser.chapterViews) {
+                currentUser.chapterViews = {};
+            }
+            
+            const key = `${itemId}_chapter_${chapterIndex}`;
+            
+            // Un utilisateur ne fait qu'une vue par chapitre
+            if (!currentUser.chapterViews[key]) {
+                currentUser.chapterViews[key] = 1;
+                localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+                return true;
+            }
+            
+            return false;
+        }
+        
+        function getTotalChapterViews(itemId) {
+            if (!currentUser || !currentUser.chapterViews) return 0;
+            
+            let total = 0;
+            for (let key in currentUser.chapterViews) {
+                if (key.startsWith(`${itemId}_chapter_`)) {
+                    total += currentUser.chapterViews[key];
+                }
+            }
+            return total;
+        }
+
+        // =============================
+        // GESTION DES MODALES
+        // =============================
         
         function showAuthModal(tab = 'login') {
             const modal = document.getElementById('authModal');
@@ -1522,6 +1851,55 @@
             });
         }
         
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideErrors();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const result = login(email, password);
+            if (result.success) {
+                hideAuthModal();
+                showToast(result.message, 'success');
+            } else {
+                showError('loginError', result.message);
+            }
+        });
+        
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideErrors();
+            
+            const username = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showError('registerError', 'Les mots de passe ne correspondent pas');
+                return;
+            }
+            
+            const result = register(username, email, password);
+            if (result.success) {
+                hideAuthModal();
+                showToast(result.message, 'success');
+            } else {
+                showError('registerError', result.message);
+            }
+        });
+        
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAuthModal();
+            }
+        });
+        
+        // =============================
+        // GESTION DU MENU UTILISATEUR
+        // =============================
+        
         function toggleUserMenu() {
             const menu = document.getElementById('userMenu');
             menu.classList.toggle('active');
@@ -1535,23 +1913,10 @@
                 menu.classList.remove('active');
             }
         });
-
-        function incrementViewCount(itemId, chapterIndex) {
-            let item = data.books.find(b => b.id === itemId);
-            if (!item || !item.chapters[chapterIndex]) return;
-            
-            const chapterKey = `${itemId}_${chapterIndex}`;
-            const sessionKey = `viewed_${chapterKey}`;
-            
-            if (!sessionStorage.getItem(sessionKey)) {
-                item.chapters[chapterIndex].viewCount++;
-                item.totalViews++;
-                sessionStorage.setItem(sessionKey, 'true');
-            }
-            
-            renderList('booksList', data.books);
-            renderList('booksPageList', data.books);
-        }
+        
+        // =============================
+        // LECTEUR PDF OPTIMISÉ - MODE RAPIDE UNIQUEMENT
+        // =============================
         
         async function openChapter(itemId, chapterIndex) {
             if (!currentUser) {
@@ -1561,10 +1926,13 @@
             }
             
             const item = data.books.find(b => b.id === itemId);
+            
             if (!item || !item.chapters[chapterIndex]) return;
             
-            incrementViewCount(itemId, chapterIndex);
+            // Incrémenter la vue du chapitre (une seule fois)
+            const wasNewView = incrementChapterView(itemId, chapterIndex);
             
+            // Ajouter à l'historique
             currentUser.history.unshift({
                 itemId: itemId,
                 chapterIndex: chapterIndex,
@@ -1585,6 +1953,7 @@
         
         async function loadPDF(url) {
             try {
+                // Nettoyer l'état précédent
                 if (pdfLoadingTask) {
                     pdfLoadingTask.destroy();
                 }
@@ -1594,12 +1963,13 @@
                     currentPdf = null;
                 }
                 
+                // Afficher l'interface de chargement
                 document.getElementById('pdfViewer').innerHTML = `
                     <div class="pdf-loading">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <p>Chargement du PDF...</p>
+                        <p>Chargement rapide du PDF...</p>
                         <div class="pdf-progress">
-                            <div class="pdf-progress-bar" id="pdfProgressBar"></div>
+                            <div class="pdfProgressBar" class="pdf-progress-bar"></div>
                         </div>
                         <p id="pdfLoadingText">Initialisation...</p>
                     </div>
@@ -1607,17 +1977,20 @@
                 
                 showToast('Chargement du PDF en cours...', 'success');
                 
+                // Configuration optimisée pour le mode rapide uniquement
                 pdfLoadingTask = pdfjsLib.getDocument({
                     url: url,
                     cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/cmaps/',
                     cMapPacked: true,
                     disableAutoFetch: false,
-                    disableStream: false,
-                    disableRange: false
+                    disableStream: true, // Stream désactivé pour chargement rapide
+                    disableRange: false,
+                    enableXfa: false
                 });
                 
+                // Suivi de progression simplifié
                 pdfLoadingTask.onProgress = function(progressData) {
-                    const progress = Math.round((progressData.loaded / progressData.total) * 100);
+                    const progress = progressData.loaded ? Math.round((progressData.loaded / progressData.total) * 100) : 0;
                     const progressBar = document.getElementById('pdfProgressBar');
                     const loadingText = document.getElementById('pdfLoadingText');
                     
@@ -1626,19 +1999,14 @@
                     }
                     
                     if (loadingText) {
-                        if (progress < 30) {
-                            loadingText.textContent = 'Téléchargement du PDF...';
-                        } else if (progress < 70) {
-                            loadingText.textContent = 'Analyse du contenu...';
-                        } else {
-                            loadingText.textContent = 'Préparation de l\'affichage...';
-                        }
+                        loadingText.textContent = `Chargement: ${progress}%`;
                     }
                 };
                 
+                // Chargement avec timeout court
                 const loadPromise = pdfLoadingTask.promise;
                 const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Timeout de chargement PDF')), 10000);
+                    setTimeout(() => reject(new Error('Timeout de chargement PDF')), 5000);
                 });
                 
                 currentPdf = await Promise.race([loadPromise, timeoutPromise]);
@@ -1647,6 +2015,7 @@
                 document.getElementById('pageCount').textContent = currentPdf.numPages;
                 currentPageNum = 1;
                 
+                // Rendu rapide de la première page
                 await renderPage(currentPageNum);
                 
                 showToast('PDF chargé avec succès', 'success');
@@ -1679,10 +2048,13 @@
                 const container = document.getElementById('pdfViewer');
                 const containerWidth = container.clientWidth - 80;
                 
+                // Calcul d'échelle optimisé pour rapidité
                 const viewport = page.getViewport({ scale: 1 });
-                const scale = Math.min(currentScale, containerWidth / viewport.width);
+                let scale = Math.min(currentScale, containerWidth / viewport.width);
+                
                 const scaledViewport = page.getViewport({ scale: scale });
                 
+                // Création du canvas simplifié
                 const canvasContainer = document.createElement('div');
                 canvasContainer.className = 'pdf-canvas-container';
                 canvasContainer.style.width = `${scaledViewport.width}px`;
@@ -1692,34 +2064,33 @@
                 canvas.id = 'pdfCanvas';
                 const context = canvas.getContext('2d');
                 
+                // Configuration minimaliste pour rapidité
                 canvas.height = scaledViewport.height;
                 canvas.width = scaledViewport.width;
                 canvas.style.height = `${scaledViewport.height}px`;
                 canvas.style.width = `${scaledViewport.width}px`;
                 
+                // Désactiver le lissage pour vitesse
+                context.imageSmoothingEnabled = false;
+                
                 const renderContext = {
                     canvasContext: context,
                     viewport: scaledViewport,
-                    enableWebGL: false,
+                    enableWebGL: false, // WebGL désactivé pour plus de compatibilité
                     intent: 'display',
                     renderInteractiveForms: false
                 };
                 
-                container.innerHTML = `
-                    <div class="pdf-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Chargement de la page ${pageNum}...</p>
-                    </div>
-                `;
-                
                 await page.render(renderContext).promise;
                 
+                // Affichage final
                 canvasContainer.appendChild(canvas);
                 container.innerHTML = '';
                 container.appendChild(canvasContainer);
                 
                 document.getElementById('pageNum').textContent = pageNum;
                 
+                // Nettoyer la mémoire immédiatement
                 page.cleanup();
                 
             } catch (error) {
@@ -1771,9 +2142,9 @@
         }
         
         function resetZoom() {
-            currentScale = 1.2;
+            currentScale = 1.0;
             renderPage(currentPageNum);
-            showToast('Zoom réinitialisé à 120%');
+            showToast('Zoom réinitialisé à 100%');
         }
         
         function fitToWidth() {
@@ -1788,6 +2159,7 @@
                 currentScale = Math.round(currentScale * 10) / 10;
                 renderPage(currentPageNum);
                 showToast(`Adapté à la largeur: ${Math.round(currentScale * 100)}%`);
+                page.cleanup();
             });
         }
         
@@ -1805,18 +2177,61 @@
             }
         }
         
+        // =============================
+        // DONNÉES ET AFFICHAGE
+        // =============================
+        
+        const data = {
+            books: [
+                {
+                    id: "b1",
+                    title: "Plumes Brûlées",
+                    author: "Dr DOOM",
+                    genre: "Poésie",
+                    cover: "assets/images/plume.png",
+                    description: "Alfred de Musset, Louis Aragon, Albert Camus, Victor Hugo, de grands amoureux de l'amour mais qui ne l'ont jamais connu. Dans leurs écrits, ils présentaient l'amour comme quelque chose de magique entre deux personnes, mais leurs vies...",
+                    chapters: [
+                        { title: "Poème", pdf: "assets/images/plume.pdf" }
+                    ]
+                }
+            ],
+            mangas: [
+                {
+                    id: "m1",
+                    title: "Bientôt disponible",
+                    author: "MUYAMBILI",
+                    genre: "À venir",
+                    cover: "https://picsum.photos/300/400?random=2",
+                    description: "De nouveaux mangas arrivent bientôt sur la plateforme.",
+                    chapters: []
+                }
+            ],
+            articles: [
+                {
+                    id: "a1",
+                    title: "À venir",
+                    author: "MUYAMBILI",
+                    genre: "Information",
+                    cover: "https://picsum.photos/300/400?random=3",
+                    description: "Des articles passionnants arrivent prochainement.",
+                    pdf: ""
+                }
+            ]
+        };
+        
         function renderList(containerId, items) {
             const container = document.getElementById(containerId);
             if (!container) return;
             
             container.innerHTML = '';
             items.forEach(item => {
+                const totalViews = currentUser ? getTotalChapterViews(item.id) : 0;
                 const isFavorite = currentUser ? currentUser.favorites.includes(item.id) : false;
                 const rating = currentUser ? (currentUser.ratings[item.id] || 0) : 0;
                 
                 container.innerHTML += `
                     <div class="item-card" onclick="openDescription('${item.id}')">
-                        <img src="${item.cover}" alt="${item.title}">
+                        <img src="${item.cover}" alt="${item.title}" loading="lazy">
                         <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
                                 onclick="event.stopPropagation(); toggleFavorite('${item.id}')">
                             <i class="fas fa-heart"></i>
@@ -1826,7 +2241,7 @@
                             <p>${item.author}</p>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <p class="genre">${item.genre}</p>
-                                <span class="views-badge">${item.totalViews || 0} vue${(item.totalViews || 0) > 1 ? 's' : ''}</span>
+                                <span class="views-badge">${totalViews} vue${totalViews > 1 ? 's' : ''}</span>
                             </div>
                             ${currentUser ? `
                                 <div class="rating" onclick="event.stopPropagation()">
@@ -1852,12 +2267,14 @@
             document.getElementById('descCover').src = item.cover;
             document.getElementById('descCover').alt = item.title;
             
+            const totalViews = currentUser ? getTotalChapterViews(item.id) : 0;
             const isFavorite = currentUser ? currentUser.favorites.includes(item.id) : false;
             const rating = currentUser ? (currentUser.ratings[item.id] || 0) : 0;
             
             let chaptersHtml = '';
             if (item.chapters && item.chapters.length > 0) {
                 item.chapters.forEach((chapter, index) => {
+                    const chapterViews = currentUser ? getChapterViewCount(item.id, index) : 0;
                     const canRead = currentUser ? true : false;
                     
                     chaptersHtml += `
@@ -1868,7 +2285,7 @@
                                 ${chapter.title}
                                 ${!canRead ? '<i class="fas fa-lock lock-icon"></i>' : ''}
                             </span>
-                            <span class="views-badge">${chapter.viewCount || 0} vue${(chapter.viewCount || 0) > 1 ? 's' : ''}</span>
+                            <span class="chapter-views">${chapterViews} vue${chapterViews > 1 ? 's' : ''}</span>
                         </button>
                     `;
                 });
@@ -1888,7 +2305,7 @@
                     <div class="book-meta">
                         <span><i class="fas fa-user"></i> ${item.author}</span>
                         <span><i class="fas fa-tag"></i> ${item.genre}</span>
-                        <span><i class="fas fa-eye"></i> ${item.totalViews || 0} vue${(item.totalViews || 0) > 1 ? 's' : ''}</span>
+                        <span><i class="fas fa-eye"></i> ${totalViews} vue${totalViews > 1 ? 's' : ''}</span>
                     </div>
                     <div class="book-description">
                         <p>${item.description}</p>
@@ -1907,13 +2324,88 @@
                 </div>
                 ${item.chapters && item.chapters.length > 0 ? `
                     <div class="chapters-section">
-                        <h2><i class="fas fa-list-ol"></i> Chapitres</h2>
+                        <h2><i class="fas fa-list-ol"></i> Chapitres (Total: ${totalViews} vue${totalViews > 1 ? 's' : ''})</h2>
                         ${chaptersHtml}
                     </div>
                 ` : ''}
             `;
             
             showPage('descriptionPage');
+        }
+        
+        function updateProtectedContent() {
+            const libraryContent = document.getElementById('libraryContent');
+            if (libraryContent) {
+                if (currentUser) {
+                    libraryContent.innerHTML = `
+                        <div class="library-tabs">
+                            <button class="library-tab active" data-tab="favorites" onclick="switchLibraryTab('favorites')">Favoris</button>
+                            <button class="library-tab" data-tab="history" onclick="switchLibraryTab('history')">Historique</button>
+                        </div>
+                        <div id="favoritesTab" class="tab-content active">
+                            <div class="content-grid" id="favoritesList"></div>
+                        </div>
+                        <div id="historyTab" class="tab-content">
+                            <div id="historyContent"></div>
+                        </div>
+                    `;
+                    
+                    // Afficher les favoris
+                    const favoritesList = document.getElementById('favoritesList');
+                    if (favoritesList) {
+                        const favoriteItems = data.books.filter(item => 
+                            currentUser.favorites.includes(item.id)
+                        );
+                        renderList('favoritesList', favoriteItems);
+                    }
+                    
+                    // Afficher l'historique
+                    const historyContent = document.getElementById('historyContent');
+                    if (historyContent && currentUser.history) {
+                        if (currentUser.history.length === 0) {
+                            historyContent.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-history"></i>
+                                    <h3>Aucun historique</h3>
+                                    <p>Votre historique de lecture apparaîtra ici.</p>
+                                </div>
+                            `;
+                        } else {
+                            historyContent.innerHTML = '';
+                            currentUser.history.forEach(historyItem => {
+                                const item = data.books.find(b => b.id === historyItem.itemId);
+                                if (item) {
+                                    historyContent.innerHTML += `
+                                        <div class="history-item" onclick="openChapter('${historyItem.itemId}', ${historyItem.chapterIndex})">
+                                            <h4>${historyItem.title}</h4>
+                                            <p>Lu le ${new Date(historyItem.timestamp).toLocaleDateString()}</p>
+                                        </div>
+                                    `;
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    libraryContent.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-lock"></i>
+                            <h3>Contenu Réservé aux Membres</h3>
+                            <p>Connectez-vous pour accéder à votre bibliothèque personnelle.</p>
+                            <button class="btn btn-primary" onclick="showAuthModal('login')">
+                                <i class="fas fa-sign-in-alt"></i> Se connecter
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        function switchLibraryTab(tab) {
+            document.querySelectorAll('.library-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`.library-tab[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(`${tab}Tab`).classList.add('active');
         }
         
         function toggleFavorite(itemId) {
@@ -1987,9 +2479,12 @@
                 renderList('mangaPageList', data.mangas);
             } else if (pageId === 'articlesPage') {
                 renderList('articlesPageList', data.articles);
+            } else if (pageId === 'libraryPage') {
+                updateProtectedContent();
             }
         }
         
+        // Navigation
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -2011,6 +2506,7 @@
             });
         });
         
+        // Recherche
         document.getElementById('searchInput').addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
             
@@ -2044,6 +2540,7 @@
             }
         });
         
+        // Carousel
         let currentSlide = 0;
         const slides = document.querySelectorAll('.hero-slide');
         const indicators = document.querySelectorAll('.indicator');
@@ -2084,6 +2581,7 @@
             carouselInterval = setInterval(nextSlide, 5000);
         });
         
+        // Thème
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -2107,6 +2605,7 @@
             });
         }
         
+        // Toast
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -2132,6 +2631,7 @@
             }, 3000);
         }
         
+        // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 const splashScreen = document.getElementById('splashScreen');
@@ -2151,51 +2651,6 @@
             
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
             document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
-            
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                hideErrors();
-                
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                const result = login(email, password);
-                if (result.success) {
-                    hideAuthModal();
-                    showToast(result.message, 'success');
-                } else {
-                    showError('loginError', result.message);
-                }
-            });
-            
-            document.getElementById('registerForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                hideErrors();
-                
-                const username = document.getElementById('registerName').value;
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                if (password !== confirmPassword) {
-                    showError('registerError', 'Les mots de passe ne correspondent pas');
-                    return;
-                }
-                
-                const result = register(username, email, password);
-                if (result.success) {
-                    hideAuthModal();
-                    showToast(result.message, 'success');
-                } else {
-                    showError('registerError', result.message);
-                }
-            });
-            
-            document.getElementById('authModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    hideAuthModal();
-                }
-            });
             
             document.getElementById('favoritesBtn').addEventListener('click', () => {
                 if (currentUser) {
