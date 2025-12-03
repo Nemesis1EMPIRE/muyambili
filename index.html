@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MUYAMBILI - Plateforme de Lecture</title>
+    <title>MUYAMBILI - Plumes Brûlées</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
@@ -46,59 +46,6 @@
                 }
             }
         });
-        
-        // Détecter l'ouverture des outils de développement
-        let devtools = function() {};
-        devtools.toString = function() {
-            showToast('Outils de développement détectés', 'error');
-            document.body.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: var(--light);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 99999;
-                    padding: 20px;
-                ">
-                    <div style="
-                        text-align: center;
-                        max-width: 500px;
-                        background: white;
-                        padding: 40px;
-                        border-radius: 16px;
-                        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                    ">
-                        <h2 style="color: var(--danger); margin-bottom: 20px;">
-                            <i class="fas fa-shield-alt"></i> Accès Restreint
-                        </h2>
-                        <p style="margin-bottom: 20px; line-height: 1.6;">
-                            L'accès aux outils de développement n'est pas autorisé sur cette plateforme.
-                            Pour préserver l'intégrité du contenu et la sécurité des données,
-                            veuillez utiliser l'interface normale de l'application.
-                        </p>
-                        <button onclick="location.reload()" style="
-                            background: var(--primary);
-                            color: var(--dark);
-                            border: none;
-                            padding: 12px 30px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-weight: bold;
-                        ">
-                            <i class="fas fa-redo"></i> Recharger l'application
-                        </button>
-                    </div>
-                </div>
-            `;
-            return '';
-        };
-        
-        console.log('%c', devtools);
     })();
     </script>
     
@@ -666,9 +613,7 @@
             margin-right: auto;
         }
 
-        /* Le reste des styles existants... */
-        /* (Les styles pour le carousel, les cartes, etc. restent inchangés) */
-        
+        /* Hero Carousel */
         .hero-carousel {
             position: relative;
             height: 500px;
@@ -715,6 +660,61 @@
             line-height: 1.6;
         }
 
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: var(--transition);
+            color: var(--dark);
+        }
+
+        .carousel-control:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-control.prev {
+            left: 20px;
+        }
+
+        .carousel-control.next {
+            right: 20px;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .indicator.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        /* Content Grid */
         .content-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -976,6 +976,140 @@
             margin-left: 10px;
         }
 
+        /* Lecteur PDF */
+        .reading-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .reading-header h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+
+        .pdf-viewer-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .pdf-nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .page-info {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        #pdfViewer {
+            min-height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border: 1px solid var(--secondary);
+        }
+
+        #pdfViewer canvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .pdf-loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--gray);
+        }
+
+        .pdf-error {
+            text-align: center;
+            padding: 60px;
+            color: var(--danger);
+            background: #fdeded;
+            border-radius: 12px;
+            border: 1px solid var(--danger);
+        }
+
+        .reading-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        /* Contact Page */
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .contact-info {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .contact-info h3 {
+            margin-bottom: 25px;
+            color: var(--dark);
+            font-size: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .info-item i {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-top: 3px;
+        }
+
+        .info-content h4 {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .info-content p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .contact-form {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
         /* Media Queries pour le responsive */
         @media (max-width: 768px) {
             .app-container {
@@ -1057,12 +1191,109 @@
             .auth-modal {
                 width: 95%;
             }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+
+            .pdf-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
 
         @media (min-width: 769px) {
             .mobile-only {
                 display: none;
             }
+        }
+
+        /* Bibliothèque */
+        .library-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .library-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .library-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .library-tab:hover {
+            color: var(--dark);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .history-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--secondary);
+            background: white;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            border-left: 4px solid var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        /* Message "Aucun contenu" */
+        .no-content {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+            grid-column: 1 / -1;
+        }
+        
+        .no-content i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .no-content h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
         }
     </style>
 </head>
@@ -1174,7 +1405,7 @@
                 <div class="header-top">
                     <div class="search-bar">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="searchInput" placeholder="Rechercher par titre, auteur ou genre...">
+                        <input type="text" id="searchInput" placeholder="Rechercher...">
                     </div>
                     <div class="user-actions">
                         <button id="favoritesBtn" title="Mes favoris">
@@ -1198,18 +1429,27 @@
                         <div class="hero-content">
                             <h2>Plumes Brûlées</h2>
                             <p>Les plus belles citations d'amour viennent de ceux qui ne l'ont jamais connu.</p>
+                            <button class="btn btn-primary" onclick="openDescription('b1')">
+                                <i class="fas fa-book-open"></i> Lire maintenant
+                            </button>
                         </div>
                     </div>
-                    <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://picsum.photos/1200/600?random=2')">
+                    <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('assets/images/plume.png')">
                         <div class="hero-content">
-                            <h2>Bientôt disponible</h2>
-                            <p></p>
+                            <h2>Plumes Brûlées</h2>
+                            <p>Un recueil de poésie qui explore les paradoxes de l'amour.</p>
+                            <button class="btn btn-primary" onclick="openDescription('b1')">
+                                <i class="fas fa-book-open"></i> Découvrir
+                            </button>
                         </div>
                     </div>
-                    <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://picsum.photos/1200/600?random=3')">
+                    <div class="hero-slide" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('assets/images/plume.png')">
                         <div class="hero-content">
-                            <h2>Bientôt</h2>
-                            <p></p>
+                            <h2>Plumes Brûlées</h2>
+                            <p>La poésie au cœur des émotions humaines.</p>
+                            <button class="btn btn-primary" onclick="openDescription('b1')">
+                                <i class="fas fa-book-open"></i> Commencer la lecture
+                            </button>
                         </div>
                     </div>
                     
@@ -1230,19 +1470,25 @@
                     <h2>Romans en Vedette</h2>
                     <a href="#" class="view-all" data-page="booksPage">Voir Tout</a>
                 </div>
-                <div class="content-grid" id="booksList"></div>
+                <div class="content-grid" id="booksList">
+                    <!-- Seul "Plumes Brûlées" sera affiché -->
+                </div>
 
                 <div class="section-title">
                     <h2>Mangas Populaires</h2>
                     <a href="#" class="view-all" data-page="mangaPage">Voir Tout</a>
                 </div>
-                <div class="content-grid" id="mangaList"></div>
+                <div class="content-grid" id="mangaList">
+                    <!-- Aucun manga ne sera affiché -->
+                </div>
 
                 <div class="section-title">
                     <h2>Articles Récents</h2>
                     <a href="#" class="view-all" data-page="articlesPage">Voir Tout</a>
                 </div>
-                <div class="content-grid" id="articlesList"></div>
+                <div class="content-grid" id="articlesList">
+                    <!-- Aucun article ne sera affiché -->
+                </div>
             </section>
 
             <!-- Books Page -->
@@ -1250,7 +1496,9 @@
                 <div class="section-title">
                     <h2>Tous les Romans</h2>
                 </div>
-                <div class="content-grid" id="booksPageList"></div>
+                <div class="content-grid" id="booksPageList">
+                    <!-- Seul "Plumes Brûlées" sera affiché -->
+                </div>
             </section>
 
             <!-- Manga Page -->
@@ -1258,7 +1506,9 @@
                 <div class="section-title">
                     <h2>Tous les Mangas</h2>
                 </div>
-                <div class="content-grid" id="mangaPageList"></div>
+                <div class="content-grid" id="mangaPageList">
+                    <!-- Aucun manga ne sera affiché -->
+                </div>
             </section>
 
             <!-- Articles Page -->
@@ -1266,7 +1516,9 @@
                 <div class="section-title">
                     <h2>Tous les Articles</h2>
                 </div>
-                <div class="content-grid" id="articlesPageList"></div>
+                <div class="content-grid" id="articlesPageList">
+                    <!-- Aucun article ne sera affiché -->
+                </div>
             </section>
 
             <!-- Library Page -->
@@ -1298,8 +1550,44 @@
                     </button>
                 </div>
                 
-                <div class="protected-content" id="readerContent">
-                    <!-- Rempli dynamiquement selon l'état de connexion -->
+                <div class="pdf-viewer-container">
+                    <div class="pdf-controls">
+                        <div class="pdf-nav-buttons">
+                            <button class="btn btn-outline" onclick="prevPage()">
+                                <i class="fas fa-chevron-left"></i> Précédent
+                            </button>
+                            <span class="page-info">
+                                Page <span id="pageNum">1</span> sur <span id="pageCount">0</span>
+                            </span>
+                            <button class="btn btn-outline" onclick="nextPage()">
+                                Suivant <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline" onclick="zoomOut()" title="Zoom arrière">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="btn btn-outline" onclick="resetZoom()" title="Zoom normal">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button class="btn btn-outline" onclick="zoomIn()" title="Zoom avant">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="pdfViewer">
+                        <div class="pdf-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Chargement du PDF...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reading-controls">
+                    <button class="btn btn-outline" onclick="showPage('descriptionPage')">
+                        <i class="fas fa-arrow-left"></i> Retour au livre
+                    </button>
                 </div>
             </section>
 
@@ -1367,6 +1655,15 @@
     </div>
 
     <script>
+        // Configuration PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        // Variables pour la gestion PDF
+        let currentPdf = null;
+        let currentPageNum = 1;
+        let currentScale = 1.5;
+        let pdfLoadingTask = null;
+
         // =============================
         // GESTION DE L'AUTHENTIFICATION
         // =============================
@@ -1654,24 +1951,6 @@
                     `;
                 }
             }
-            
-            // Lecteur PDF
-            const readerContent = document.getElementById('readerContent');
-            if (readerContent && !currentUser) {
-                readerContent.innerHTML = `
-                    <div class="protected-content">
-                        <i class="fas fa-lock"></i>
-                        <h3>Lecture Réservée aux Membres</h3>
-                        <p>Vous devez être connecté pour lire les chapitres et articles.</p>
-                        <button class="btn btn-primary" onclick="showAuthModal('login')">
-                            <i class="fas fa-sign-in-alt"></i> Se connecter
-                        </button>
-                        <button class="btn btn-outline" onclick="showAuthModal('register')" style="margin-left: 10px;">
-                            <i class="fas fa-user-plus"></i> Créer un compte
-                        </button>
-                    </div>
-                `;
-            }
         }
         
         function requireAuth(action) {
@@ -1695,69 +1974,17 @@
                     author: "Dr DOOM",
                     genre: "Poésie",
                     cover: "assets/images/plume.png",
-                    description: "Les plus belles citations d'amour viennent de ceux qui ne l'ont jamais connu. Un recueil poignant qui explore les paradoxes de l'amour à travers des poèmes déchirants.",
+                    description: "Alfred de Musset, Louis Aragon, Albert Camus, Victor Hugo, de grands amoureux de l'amour mais qui ne l'ont jamais connu. Dans leurs écrits, ils présentaient l'amour comme quelque chose de magique entre deux personnes, mais leurs vies...",
                     chapters: [
                         { title: "Poème", pdf: "assets/images/plume.pdf" }
-                    ]
-                },
-               {
-                    id: "b2",
-                    title: "L'Héritage des Anciens",
-                    author: "Pierre Dubois",
-                    genre: "Aventure",
-                    cover: "https://picsum.photos/300/400?random=4",
-                    description: "Une quête épique à travers des terres oubliées pour retrouver l'héritage des anciens dieux.",
-                    chapters: [
-                        { title: "Chapitre 1: L'Appel", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
-                        { title: "Chapitre 2: Le Premier Temple", pdf: "https://www.africau.edu/images/default/sample.pdf" }
-                    ]
+                    ],
+                    comments: []
                 }
             ],
-            mangas: [
-                {
-                    id: "m1",
-                    title: "Blade Runner X",
-                    author: "Kenji Sato",
-                    genre: "Action",
-                    cover: "https://picsum.photos/300/400?random=2",
-                    description: "Un jeune guerrier cybernétique découvrant la vérité sur son passé dans un Tokyo futuriste.",
-                    chapters: [
-                        { title: "Chapitre 1: Réveil Numérique", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
-                        { title: "Chapitre 2: Mémoires Fragmentées", pdf: "https://www.africau.edu/images/default/sample.pdf" }
-                    ]
-                },
-                {
-                    id: "m2",
-                    title: "Sakura Dreams",
-                    author: "Yuki Tanaka",
-                    genre: "Romance",
-                    cover: "https://picsum.photos/300/400?random=5",
-                    description: "Une histoire d'amour touchante entre une artiste et un musicien sous les cerisiers en fleurs.",
-                    chapters: [
-                        { title: "Chapitre 1: Première Rencontre", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
-                    ]
-                }
-            ],
-            articles: [
-                {
-                    id: "a1",
-                    title: "Les Secrets du Cerveau Humain",
-                    author: "Dr. Malika Ondo",
-                    genre: "Science",
-                    cover: "https://picsum.photos/300/400?random=3",
-                    description: "Analyse approfondie du fonctionnement du cerveau et des dernières découvertes en neurosciences.",
-                    pdf: "https://www.africau.edu/images/default/sample.pdf"
-                },
-                {
-                    id: "a2",
-                    title: "L'IA et la Créativité",
-                    author: "Dr. Thomas Weber",
-                    genre: "Technologie",
-                    cover: "https://picsum.photos/300/400?random=6",
-                    description: "Comment l'intelligence artificielle transforme le paysage créatif et artistique.",
-                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-                }
-            ]
+            // Pas de mangas
+            mangas: [],
+            // Pas d'articles
+            articles: []
         };
         
         // =============================
@@ -1769,6 +1996,18 @@
             if (!container) return;
             
             container.innerHTML = '';
+            
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="no-content">
+                        <i class="fas fa-book"></i>
+                        <h3>Aucun contenu disponible</h3>
+                        <p>D'autres contenus seront bientôt ajoutés.</p>
+                    </div>
+                `;
+                return;
+            }
+            
             items.forEach(item => {
                 const views = currentUser ? (currentUser.views[item.id] || 0) : 0;
                 const isFavorite = currentUser ? currentUser.favorites.includes(item.id) : false;
@@ -1878,7 +2117,11 @@
             showPage('descriptionPage');
         }
         
-        function openChapter(itemId, chapterIndex) {
+        // =============================
+        // LECTEUR PDF FONCTIONNEL
+        // =============================
+        
+        async function openChapter(itemId, chapterIndex) {
             if (!requireAuth()) return;
             
             const item = data.books.find(b => b.id === itemId) ||
@@ -1906,9 +2149,127 @@
                 localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
             }
             
-            showToast('Ouverture du chapitre...', 'success');
-            // Ici vous intégreriez votre lecteur PDF
+            document.getElementById('readerTitle').textContent = `${item.title} - ${item.chapters[chapterIndex].title}`;
+            await loadPDF(item.chapters[chapterIndex].pdf);
             showPage('readerPage');
+        }
+        
+        async function loadPDF(url) {
+            try {
+                document.getElementById('pdfViewer').innerHTML = `
+                    <div class="pdf-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Chargement du PDF...</p>
+                    </div>
+                `;
+
+                // Annuler tout chargement précédent
+                if (pdfLoadingTask) {
+                    pdfLoadingTask.destroy();
+                }
+                
+                pdfLoadingTask = pdfjsLib.getDocument({
+                    url: url,
+                    cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/cmaps/',
+                    cMapPacked: true
+                });
+                
+                currentPdf = await pdfLoadingTask.promise;
+                pdfLoadingTask = null;
+                
+                document.getElementById('pageCount').textContent = currentPdf.numPages;
+                currentPageNum = 1;
+                await renderPage(currentPageNum);
+                
+            } catch (error) {
+                console.error('Erreur de chargement PDF:', error);
+                document.getElementById('pdfViewer').innerHTML = `
+                    <div class="pdf-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erreur de chargement du PDF</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">${error.message || 'Vérifiez votre connexion internet'}</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-primary" onclick="showPage('descriptionPage')">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        async function renderPage(pageNum) {
+            if (!currentPdf) return;
+
+            try {
+                const page = await currentPdf.getPage(pageNum);
+                
+                const container = document.getElementById('pdfViewer');
+                const containerWidth = container.clientWidth - 40;
+                
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = Math.min(currentScale, containerWidth / viewport.width);
+                const scaledViewport = page.getViewport({ scale: scale });
+                
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                canvas.height = scaledViewport.height;
+                canvas.width = scaledViewport.width;
+                
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: scaledViewport
+                };
+                
+                await page.render(renderContext).promise;
+                
+                container.innerHTML = '';
+                container.appendChild(canvas);
+                document.getElementById('pageNum').textContent = pageNum;
+                
+            } catch (error) {
+                console.error('Erreur de rendu de page:', error);
+                document.getElementById('pdfViewer').innerHTML = `
+                    <div class="pdf-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erreur d'affichage de la page</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function nextPage() {
+            if (currentPdf && currentPageNum < currentPdf.numPages) {
+                currentPageNum++;
+                renderPage(currentPageNum);
+            }
+        }
+        
+        function prevPage() {
+            if (currentPdf && currentPageNum > 1) {
+                currentPageNum--;
+                renderPage(currentPageNum);
+            }
+        }
+        
+        function zoomIn() {
+            if (currentScale < 3.0) {
+                currentScale += 0.2;
+                renderPage(currentPageNum);
+            }
+        }
+        
+        function zoomOut() {
+            if (currentScale > 0.5) {
+                currentScale -= 0.2;
+                renderPage(currentPageNum);
+            }
+        }
+        
+        function resetZoom() {
+            currentScale = 1.5;
+            renderPage(currentPageNum);
         }
         
         // =============================
@@ -1945,19 +2306,13 @@
             data.books.forEach(book => {
                 if (currentUser.favorites.includes(book.id)) favoriteItems.push(book);
             });
-            data.mangas.forEach(manga => {
-                if (currentUser.favorites.includes(manga.id)) favoriteItems.push(manga);
-            });
-            data.articles.forEach(article => {
-                if (currentUser.favorites.includes(article.id)) favoriteItems.push(article);
-            });
             
             if (favoriteItems.length === 0) {
                 container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--gray);">
+                    <div class="no-content">
                         <i class="fas fa-heart" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
                         <h3>Aucun favori</h3>
-                        <p>Ajoutez des contenus à vos favoris pour les retrouver ici.</p>
+                        <p>Ajoutez "Plumes Brûlées" à vos favoris pour le retrouver ici.</p>
                     </div>
                 `;
                 return;
@@ -1999,8 +2354,8 @@
             
             if (currentUser.history.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--gray);">
-                        <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
                         <h3>Aucun historique</h3>
                         <p>Votre historique de lecture apparaîtra ici.</p>
                     </div>
@@ -2010,9 +2365,7 @@
             
             container.innerHTML = '';
             currentUser.history.forEach(entry => {
-                const item = data.books.find(b => b.id === entry.itemId) ||
-                             data.mangas.find(m => m.id === entry.itemId) ||
-                             data.articles.find(a => a.id === entry.itemId);
+                const item = data.books.find(b => b.id === entry.itemId);
                 
                 if (item) {
                     const date = new Date(entry.timestamp);
@@ -2023,7 +2376,7 @@
                                 <div>
                                     <h4 style="margin-bottom: 5px;">${entry.title}</h4>
                                     <p style="color: var(--gray); font-size: 0.9rem;">
-                                        <i class="fas fa-clock"></i> ${date.toLocaleDateString('fr-FR')}
+                                        <i class="fas fa-clock"></i> ${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR').slice(0,5)}
                                     </p>
                                 </div>
                             </div>
@@ -2041,6 +2394,12 @@
                     
                     tab.classList.add('active');
                     document.getElementById(`${tab.dataset.tab}Tab`).classList.add('active');
+                    
+                    if (tab.dataset.tab === 'favorites') {
+                        renderFavorites();
+                    } else if (tab.dataset.tab === 'history') {
+                        renderHistory();
+                    }
                 });
             });
         }
@@ -2065,7 +2424,8 @@
         
         function showPage(pageId) {
             // Fermer le menu utilisateur
-            document.getElementById('userMenu').classList.remove('active');
+            const menu = document.getElementById('userMenu');
+            if (menu) menu.classList.remove('active');
             
             // Cacher toutes les pages
             document.querySelectorAll('.page').forEach(page => {
@@ -2110,7 +2470,7 @@
                 const pageId = link.dataset.page;
                 
                 // Vérifier l'authentification pour les pages protégées
-                if (['libraryPage'].includes(pageId) && !currentUser) {
+                if (pageId === 'libraryPage' && !currentUser) {
                     showAuthModal('login');
                     return;
                 }
@@ -2150,8 +2510,8 @@
                     renderList('searchResults', results);
                 } else {
                     resultsContainer.innerHTML = `
-                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--gray);">
-                            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <div class="no-content">
+                            <i class="fas fa-search"></i>
                             <h3>Aucun résultat</h3>
                             <p>Aucun contenu ne correspond à votre recherche.</p>
                         </div>
